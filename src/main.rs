@@ -39,13 +39,18 @@ fn main() {
 }
  */
 
+ struct TreeNode {
+    pos: u64,
+    parent: u64,
+    depth: u32
+ }
 
 
  fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize, usize) {
     let m = seq1.len();
     let n = seq2.len();
 
-    // Inizializza la tabella DP
+    // Inizializza la tabella DP. Si tratta delle due righe che nella versione py erano chiamate row_a e row_b
     let mut dp = vec![vec![0; n + 1]; 2];
 
     // Inizializza il punteggio massimo e la sua posizione
@@ -63,17 +68,25 @@ fn main() {
         dp[1][0] = std::cmp::max(0, dp[0][0] + gap);
 
         for j in 1..=n {
-            let match_mismatch = dp[0][j - 1]
-                + if seq1.as_bytes()[i - 1] == seq2.as_bytes()[j - 1] {
-                    match_score
-                } else {
-                    mismatch
-                };
+            let match_mismatch_delta_points = dp[0][j - 1]
+                + if seq1.as_bytes()[i - 1] == seq2.as_bytes()[j - 1] { match_score }
+                  else { mismatch };
 
             let delete = dp[0][j] + gap;
             let insert = dp[1][j - 1] + gap;
 
-            dp[1][j] = std::cmp::max(match_mismatch, std::cmp::max(delete, std::cmp::max(insert, 0)));
+            if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
+                dp[1][j] = match_mismatch_delta_points
+                // TODO: segnarsi da chi ha preso
+            } else if delete > insert {
+                dp[1][j] = delete
+                // TODO: segnarsi da chi ha preso
+            } else {
+                dp[1][j] = insert
+                // TODO: segnarsi da chi ha preso
+            }
+
+            // dp[1][j] = std::cmp::max(match_mismatch_delta_points, std::cmp::max(delete, std::cmp::max(insert, 0)));
 
             // Traccia il punteggio massimo e la sua posizione
             if dp[1][j] > max_score {
