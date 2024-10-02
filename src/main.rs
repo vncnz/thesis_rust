@@ -39,12 +39,17 @@ fn main() {
 }
  */
 
+ use std::collections::HashMap;
+
+ #[derive(Debug)]
  struct TreeNode {
-    pos: u64,
-    parent: u64,
+    pos: usize,
+    parent: usize,
+    children: [usize; 3],
     depth: u32
  }
 
+ // fn create_node(w, parent)
 
  fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize, usize) {
     let m = seq1.len();
@@ -53,10 +58,14 @@ fn main() {
     // Inizializza la tabella DP. Si tratta delle due righe che nella versione py erano chiamate row_a e row_b
     let mut dp = vec![vec![0; n + 1]; 2];
 
-    // Inizializza il punteggio massimo e la sua posizione
+    // Inizializza il punteggio massimo, la sua posizione, il relativo TreeNode
     let mut max_score = 0;
+    // let mut max_node: TreeNode = TreeNode { pos: 0, parent: 0, children: [0,0,0], depth: 0};
     let mut max_i = 0;
     let mut max_j = 0;
+
+    // Inizializza il dict
+    let mut tree = HashMap::with_capacity(n * 2);
 
     // Inizializza la prima riga
     for j in 1..=n {
@@ -66,8 +75,17 @@ fn main() {
     // Riempie la tabella DP e traccia il punteggio massimo
     for i in 1..=m {
         dp[1][0] = std::cmp::max(0, dp[0][0] + gap);
+        let node = TreeNode {
+            pos: i*n,
+            parent: (i - 1)*n,
+            children: [0,0,0],
+            depth: 0 // TODO: prenderlo dal parent quando verrà tenuto salvato
+        };
+        tree.insert(i*n, node);
+
 
         for j in 1..=n {
+            let w = i*n + j;
             let match_mismatch_delta_points = dp[0][j - 1]
                 + if seq1.as_bytes()[i - 1] == seq2.as_bytes()[j - 1] { match_score }
                   else { mismatch };
@@ -75,15 +93,31 @@ fn main() {
             let delete = dp[0][j] + gap;
             let insert = dp[1][j - 1] + gap;
 
+            let node: TreeNode;
             if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
-                dp[1][j] = match_mismatch_delta_points
-                // TODO: segnarsi da chi ha preso
+                dp[1][j] = match_mismatch_delta_points;
+                node = TreeNode {
+                    pos: w,
+                    parent: w - i - 1,
+                    children: [0,0,0],
+                    depth: 0 // TODO: prenderlo dal parent quando verrà tenuto salvato
+                };
             } else if delete > insert {
-                dp[1][j] = delete
-                // TODO: segnarsi da chi ha preso
+                dp[1][j] = delete;
+                node = TreeNode {
+                    pos: w,
+                    parent: w - i,
+                    children: [0,0,0],
+                    depth: 0 // TODO: prenderlo dal parent quando verrà tenuto salvato
+                };
             } else {
-                dp[1][j] = insert
-                // TODO: segnarsi da chi ha preso
+                dp[1][j] = insert;
+                node = TreeNode {
+                    pos: w,
+                    parent: w - 1,
+                    children: [0,0,0],
+                    depth: 0 // TODO: prenderlo dal parent quando verrà tenuto salvato
+                };
             }
 
             // dp[1][j] = std::cmp::max(match_mismatch_delta_points, std::cmp::max(delete, std::cmp::max(insert, 0)));
@@ -94,6 +128,8 @@ fn main() {
                 max_i = i;
                 max_j = j;
             }
+
+            tree.insert(w, node);
         }
 
         // Scambia le righe
@@ -101,6 +137,8 @@ fn main() {
         dp.swap(0, 1);
     }
 
+    println!("{} x {}", n, m);
+    println!("{:?}", tree[&(max_i * n + max_j)]);
     (max_score, max_i, max_j)
 }
 
