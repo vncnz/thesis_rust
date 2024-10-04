@@ -60,15 +60,19 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
     depth: u32
  }
 
- fn create_node(w: usize, parent: usize, tree: &HashMap<usize, TreeNode>) -> TreeNode {
+ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) -> TreeNode {
     println!("{}, child of {}", w, &parent);
-    let d = tree[&parent].depth;
+    let p = tree.get_mut(&parent).unwrap();
     // TODO: mettere questo nuovo nodo sul parent
+    if p.children[0] == 0 { p.children[0] = w }
+    else if p.children[1] == 0 { p.children[1] = w }
+    else if p.children[2] == 0 { p.children[2] = w }
+    else { panic!("More than 3 children!") }
     TreeNode {
         pos: w,
         parent: parent,
         children: [0,0,0],
-        depth: d + 1
+        depth: p.depth + 1
     }
  }
 
@@ -99,49 +103,49 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
     // Inizializza la prima riga
     for j in 1..n1 {
         dp[0][j] = std::cmp::max(0, dp[0][j - 1] + gap);
-        let node = create_node(j, j - 1, &tree);
+        let node = create_node(j, j - 1, &mut tree);
         tree.insert(j, node);
     }
 
     // Riempie la tabella DP e traccia il punteggio massimo
     for j in 1..n1 {
         dp[1][0] = std::cmp::max(0, dp[0][0] + gap);
-        let node = create_node(j*m1, (j - 1)*m1, &tree);
+        let node = create_node(j*m1, (j - 1)*m1, &mut tree);
         tree.insert(j*m1, node);
 
 
         for i in 1..m1 {
             let w = j*m1 + i;
             // println!("w={} m1={} j={} i={}", w, &m1, &j, &i);
-            let match_mismatch_delta_points = dp[0][j - 1]
+            let match_mismatch_delta_points = dp[0][i - 1]
                 + if seq1.as_bytes()[i - 1] == seq2.as_bytes()[j - 1] { match_score }
                   else { mismatch };
 
-            let delete = dp[0][j] + gap;
-            let insert = dp[1][j - 1] + gap;
+            let delete = dp[0][i] + gap;
+            let insert = dp[1][i - 1] + gap;
 
             let node: TreeNode;
             if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
-                dp[1][j] = match_mismatch_delta_points;
-                node = create_node(w, w - m1 - 1, &tree);
+                dp[1][i] = match_mismatch_delta_points;
+                node = create_node(w, w - m1 - 1, &mut tree);
             } else if delete >= insert {
-                dp[1][j] = delete;
-                node = create_node(w, w - m1, &tree);
+                dp[1][i] = delete;
+                node = create_node(w, w - m1, &mut tree);
             } else {
-                dp[1][j] = insert;
-                node = create_node(w, w - 1, &tree);
+                dp[1][i] = insert;
+                node = create_node(w, w - 1, &mut tree);
             }
 
             // dp[1][j] = std::cmp::max(match_mismatch_delta_points, std::cmp::max(delete, std::cmp::max(insert, 0)));
 
             // Traccia il punteggio massimo e la sua posizione
-            if dp[1][j] > max_score { // TODO: Andrà spostato per agire solo sull'ultima colonna o riga
-                max_score = dp[1][j];
-                max_i = i;
-                max_j = j;
-            }
 
             tree.insert(w, node);
+        }
+        if dp[1][m1-1] > max_score {
+            max_score = dp[1][m1-1];
+            max_i = m1-1;
+            max_j = j;
         }
 
         // Scambia le righe
@@ -151,14 +155,17 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
 
     println!("Matrix size {} x {}", m1, n1);
 
-    // let mut node = &tree[&(max_i * n + max_j)];
-    println!("{:?}", tree[&(max_i * n + max_j)]);
-    /* while node.parent != node.pos {
-        node = &tree[&node.parent];
-        println!("{:?}", &node);
-    } */
-
+    println!("\nFull schema saved in memory");
     print_hash_map(&tree);
+
+    let mut cnode = &tree[&(max_i * m1 + max_j)];
+    println!("{:?}", tree[&(max_i * m1 + max_j)]);
+    while cnode.parent != cnode.pos {
+        cnode = &tree[&cnode.parent];
+        println!("{:?}", &cnode);
+    }
+
+    
 
     (max_score, max_i, max_j)
 }
