@@ -112,6 +112,7 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
 
         for i in 1..m1 {
             let w = j*m1 + i;
+            // println!("w={} m1={} j={} i={}", w, &m1, &j, &i);
             let match_mismatch_delta_points = dp[0][j - 1]
                 + if seq1.as_bytes()[i - 1] == seq2.as_bytes()[j - 1] { match_score }
                   else { mismatch };
@@ -122,10 +123,10 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
             let node: TreeNode;
             if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
                 dp[1][j] = match_mismatch_delta_points;
-                node = create_node(w, w - i - 1, &tree);
-            } else if delete > insert {
+                node = create_node(w, w - m1 - 1, &tree);
+            } else if delete >= insert {
                 dp[1][j] = delete;
-                node = create_node(w, w - i, &tree);
+                node = create_node(w, w - m1, &tree);
             } else {
                 dp[1][j] = insert;
                 node = create_node(w, w - 1, &tree);
