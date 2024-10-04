@@ -56,25 +56,74 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
 }
 
  #[derive(Debug)]
- struct TreeNode {
+struct TreeNode {
     pos: usize,
     parent: usize,
     children: Vec<usize>,
     depth: u32
- }
+}
 
- fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) -> TreeNode {
+fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
     println!("{}, child of {}", w, &parent);
     let p = tree.get_mut(&parent).unwrap();
     // TODO: mettere questo nuovo nodo sul parent
     p.children.push(w);
-    TreeNode {
+    let n = TreeNode {
         pos: w,
         parent: parent,
         children: Vec::new(),
         depth: p.depth + 1
+    };
+    tree.insert(n.pos, n);
+}
+
+/* fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>) {
+    println!("Pruning tree starting at {}", w);
+    let n = tree.get_mut(&w).unwrap();
+    if n.children.len() == 0 {
+        println!("Deleting a node {}", n.pos);
+        let p = tree.get_mut(&n.parent).unwrap();
+        if let Some(pos) = p.children.iter().position(|x| *x == n.pos) {
+            p.children.remove(pos);
+        }
+        tree.remove(&n.pos);
+        println!("Element {} dropped", n.pos);
     }
- }
+ } */
+ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>) {
+    println!("Pruning tree starting at {}", w);
+
+    let parent_id;
+    let node_pos;
+    
+    {
+        // Primo riferimento mutabile: recuperiamo il nodo n
+        let n = tree.get_mut(&w).unwrap();
+        if n.children.len() > 0 {
+            return; // Se ci sono figli, non facciamo nulla
+        }
+        parent_id = n.parent;
+        node_pos = n.pos;
+    }
+
+    let only_child: bool;
+    {
+    
+        // Ora possiamo ottenere un secondo riferimento mutabile, dopo aver rilasciato il precedente
+        let p = tree.get_mut(&parent_id).unwrap();
+        if let Some(pos) = p.children.iter().position(|x| *x == node_pos) {
+            p.children.remove(pos);
+        }
+        only_child = p.children.is_empty();
+        
+        tree.remove(&node_pos);
+        println!("Element {} dropped", node_pos);
+    }
+
+    if only_child {
+        tree_prune(parent_id, tree);
+    }
+}
 
  fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize, usize) {
     let m = seq1.len();
@@ -93,25 +142,26 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
 
     // Inizializza il dict
     let mut tree = HashMap::with_capacity(n * 2);
-    tree.insert(0, TreeNode {
+    // create_node(0, 0, &mut tree);
+    let n = TreeNode {
         pos: 0,
         parent: 0,
         children: Vec::new(),
         depth: 0
-    });
+    };
+    tree.insert(n.pos, n);
 
     // Inizializza la prima riga
     for j in 1..n1 {
         dp[0][j] = std::cmp::max(0, dp[0][j - 1] + gap);
-        let node = create_node(j, j - 1, &mut tree);
-        tree.insert(j, node);
+        create_node(j, j - 1, &mut tree);
     }
 
     // Riempie la tabella DP e traccia il punteggio massimo
     for j in 1..n1 {
         dp[1][0] = std::cmp::max(0, dp[0][0] + gap);
-        let node = create_node(j*m1, (j - 1)*m1, &mut tree);
-        tree.insert(j*m1, node);
+        create_node(j*m1, (j - 1)*m1, &mut tree);
+        // tree_prune(j*m1 - 1, &mut tree); // qui prune dell'ultimo elemento della riga precedente
 
 
         for i in 1..m1 {
@@ -124,23 +174,23 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
             let delete = dp[0][i] + gap;
             let insert = dp[1][i - 1] + gap;
 
-            let node: TreeNode;
             if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
                 dp[1][i] = match_mismatch_delta_points;
-                node = create_node(w, w - m1 - 1, &mut tree);
+                create_node(w, w - m1 - 1, &mut tree);
+                // Qui niente prune dell'elemento in diagonale, è ovviamente non leaf!
             } else if delete >= insert {
                 dp[1][i] = delete;
-                node = create_node(w, w - m1, &mut tree);
+                create_node(w, w - m1, &mut tree);
+                tree_prune(w - m1 - 1, &mut tree); // prune dell'elemento in diagonale
             } else {
                 dp[1][i] = insert;
-                node = create_node(w, w - 1, &mut tree);
+                create_node(w, w - 1, &mut tree);
+                tree_prune(w - m1 - 1, &mut tree); // prune dell'elemento in diagonale
             }
 
             // dp[1][j] = std::cmp::max(match_mismatch_delta_points, std::cmp::max(delete, std::cmp::max(insert, 0)));
 
             // Traccia il punteggio massimo e la sua posizione
-
-            tree.insert(w, node);
         }
         if dp[1][m1-1] > max_score {
             max_score = dp[1][m1-1];
@@ -158,9 +208,10 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
     println!("\nFull schema saved in memory");
     print_hash_map(&tree);
 
-    println!("\nPath from best score to root");
-    let mut cnode = &tree[&(max_i * m1 + max_j)];
-    println!("{:?}", tree[&(max_i * m1 + max_j)]);
+    let w = max_j * m1 + max_i;
+    println!("\nPath from best score to root (max_i={}, max_j={}, w={})", max_i, max_j, w);
+    let mut cnode = &tree[&w];
+    println!("{:?}", tree[&w]);
     while cnode.parent != cnode.pos {
         cnode = &tree[&cnode.parent];
         println!("{:?}", &cnode);
