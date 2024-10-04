@@ -44,10 +44,13 @@ fn main() {
  */
 
  use std::collections::HashMap;
+ use itertools::Itertools;
 
 fn print_hash_map(map: &HashMap<usize, TreeNode>) {
-    for (key, value) in &*map {
-        println!("{} / {:?}", &key, &value);
+    // for (key, value) in &*map {
+    for key in map.keys().sorted() {
+        // println!("{:3} / {:?}", &key, &value);
+        println!("{:3} / {:?}", &key, map[key]);
     }
     // map.clear();
 }
@@ -56,7 +59,7 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
  struct TreeNode {
     pos: usize,
     parent: usize,
-    children: [usize; 3],
+    children: Vec<usize>,
     depth: u32
  }
 
@@ -64,14 +67,11 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
     println!("{}, child of {}", w, &parent);
     let p = tree.get_mut(&parent).unwrap();
     // TODO: mettere questo nuovo nodo sul parent
-    if p.children[0] == 0 { p.children[0] = w }
-    else if p.children[1] == 0 { p.children[1] = w }
-    else if p.children[2] == 0 { p.children[2] = w }
-    else { panic!("More than 3 children!") }
+    p.children.push(w);
     TreeNode {
         pos: w,
         parent: parent,
-        children: [0,0,0],
+        children: Vec::new(),
         depth: p.depth + 1
     }
  }
@@ -96,7 +96,7 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
     tree.insert(0, TreeNode {
         pos: 0,
         parent: 0,
-        children: [0,0,0],
+        children: Vec::new(),
         depth: 0
     });
 
@@ -158,14 +158,13 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
     println!("\nFull schema saved in memory");
     print_hash_map(&tree);
 
+    println!("\nPath from best score to root");
     let mut cnode = &tree[&(max_i * m1 + max_j)];
     println!("{:?}", tree[&(max_i * m1 + max_j)]);
     while cnode.parent != cnode.pos {
         cnode = &tree[&cnode.parent];
         println!("{:?}", &cnode);
     }
-
-    
 
     (max_score, max_i, max_j)
 }
