@@ -112,7 +112,7 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
         // Ora possiamo ottenere un secondo riferimento mutabile, dopo aver rilasciato il precedente
         let p = tree.get_mut(&parent_id).unwrap();
         if let Some(pos) = p.children.iter().position(|x| *x == node_pos) {
-            p.children.remove(pos);
+            p.children.swap_remove(pos);
         }
         only_child = p.children.is_empty();
         
@@ -161,8 +161,9 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
     for j in 1..n1 {
         dp[1][0] = std::cmp::max(0, dp[0][0] + gap);
         create_node(j*m1, (j - 1)*m1, &mut tree);
-        // tree_prune(j*m1 - 1, &mut tree); // qui prune dell'ultimo elemento della riga precedente
-
+        if j > 1 {
+            tree_prune((j-1)*m1 - 1, &mut tree); // qui prune dell'ultimo elemento della riga appena abbandonata
+        }
 
         for i in 1..m1 {
             let w = j*m1 + i;
