@@ -152,13 +152,14 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
     tree.insert(n.pos, n);
 
     // Inizializza la prima riga
-    for j in 1..n1 {
-        dp[0][j] = std::cmp::max(0, dp[0][j - 1] + gap);
-        create_node(j, j - 1, &mut tree);
+    for i in 1..m1 {
+        dp[0][i] = std::cmp::max(0, dp[0][i - 1] + gap);
+        create_node(i, i - 1, &mut tree);
     }
 
     // Riempie la tabella DP e traccia il punteggio massimo
     for j in 1..n1 {
+        println!("\nRow j={}", j);
         dp[1][0] = std::cmp::max(0, dp[0][0] + gap);
         create_node(j*m1, (j - 1)*m1, &mut tree);
         if j > 1 {
