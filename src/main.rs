@@ -108,14 +108,13 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
 
     let only_child: bool;
     {
-    
         // Ora possiamo ottenere un secondo riferimento mutabile, dopo aver rilasciato il precedente
         let p = tree.get_mut(&parent_id).unwrap();
         if let Some(pos) = p.children.iter().position(|x| *x == node_pos) {
             p.children.swap_remove(pos);
         }
         only_child = p.children.is_empty();
-        
+
         tree.remove(&node_pos);
         println!("Element {} dropped", node_pos);
     }
