@@ -111,21 +111,26 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
         node_pos = n.pos;
     }
 
-    let was_only_child: bool;
+    // let was_only_child: bool;
+    let children_num: usize;
     {
         // Ora possiamo ottenere un secondo riferimento mutabile, dopo aver rilasciato il precedente
         let p = tree.get_mut(&parent_id).unwrap();
         if let Some(pos) = p.children.iter().position(|x| *x == node_pos) {
             p.children.swap_remove(pos);
         }
-        was_only_child = p.children.is_empty();
+        // was_only_child = p.children.is_empty();
+        children_num = p.children.len();
 
         tree.remove(&node_pos);
         println!("Element {} dropped", node_pos);
     }
 
-    if was_only_child {
+    // if was_only_child {
+    if children_num == 1 {
         tree_prune(parent_id, tree, protected);
+    } else if children_num == 2 {
+        // TODO: Now w is an onlychild, we can check if it is "inline" and, if it is, skip its parent
     }
 }
 
