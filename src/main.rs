@@ -91,10 +91,10 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
     }
  } */
  fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) {
-    println!("Pruning tree starting at {}", w);
+    println!("Pruning tree, node {}", w);
 
     if w == *protected {
-        println!("Pruning stopped at {}: it is protected (max_score, maybe?)", w);
+        println!("Pruning stopped at {}: it is protected", w);
         return;
     }
 
@@ -202,7 +202,7 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
             max_pos = (j+1)*m1 -1;
         }
 
-        // Scambia le righe
+        // Scambia le righe. In realtà mi interessa solo che la seconda diventi prima, la nuova seconda la sovrascrivo senza guardarla. In futuro, quando avrò le de-strings, dovrà essere più elaborato
         // dp[0].clone_from_slice(&dp[1]);
         dp.swap(0, 1);
     }
