@@ -90,8 +90,13 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
         println!("Element {} dropped", n.pos);
     }
  } */
- fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>) {
+ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) {
     println!("Pruning tree starting at {}", w);
+
+    if w == *protected {
+        println!("Pruning stopped at {}: it is protected (max_score, maybe?)", w);
+        return;
+    }
 
     let parent_id;
     let node_pos;
@@ -120,11 +125,11 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
     }
 
     if only_child {
-        tree_prune(parent_id, tree);
+        tree_prune(parent_id, tree, protected);
     }
 }
 
- fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize, usize) {
+ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
     let m = seq1.len();
     let n = seq2.len();
     let m1 = m + 1;
@@ -136,8 +141,7 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
     // Inizializza il punteggio massimo, la sua posizione, il relativo TreeNode
     let mut max_score = 0;
     // let mut max_node: TreeNode = TreeNode { pos: 0, parent: 0, children: [0,0,0], depth: 0};
-    let mut max_i = 0;
-    let mut max_j = 0;
+    let mut max_pos = 0;
 
     // Inizializza il dict
     let mut tree = HashMap::with_capacity(n * 2);
@@ -162,7 +166,7 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
         dp[1][0] = std::cmp::max(0, dp[0][0] + gap);
         create_node(j*m1, (j - 1)*m1, &mut tree);
         if j > 1 {
-            tree_prune((j-1)*m1 - 1, &mut tree); // qui prune dell'ultimo elemento della riga appena abbandonata
+            tree_prune((j-1)*m1 - 1, &mut tree, &max_pos); // qui prune dell'ultimo elemento della riga appena abbandonata
         }
 
         for i in 1..m1 {
@@ -182,11 +186,11 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
             } else if delete >= insert {
                 dp[1][i] = delete;
                 create_node(w, w - m1, &mut tree);
-                tree_prune(w - m1 - 1, &mut tree); // prune dell'elemento in diagonale
+                tree_prune(w - m1 - 1, &mut tree, &max_pos); // prune dell'elemento in diagonale
             } else {
                 dp[1][i] = insert;
                 create_node(w, w - 1, &mut tree);
-                tree_prune(w - m1 - 1, &mut tree); // prune dell'elemento in diagonale
+                tree_prune(w - m1 - 1, &mut tree, &max_pos); // prune dell'elemento in diagonale
             }
 
             // dp[1][j] = std::cmp::max(match_mismatch_delta_points, std::cmp::max(delete, std::cmp::max(insert, 0)));
@@ -195,8 +199,7 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
         }
         if dp[1][m1-1] > max_score {
             max_score = dp[1][m1-1];
-            max_i = m1-1;
-            max_j = j;
+            max_pos = (j+1)*m1 -1;
         }
 
         // Scambia le righe
@@ -209,16 +212,15 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
     println!("\nFull schema saved in memory");
     print_hash_map(&tree);
 
-    let w = max_j * m1 + max_i;
-    println!("\nPath from best score to root (max_i={}, max_j={}, w={})", max_i, max_j, w);
-    let mut cnode = &tree[&w];
-    println!("{:?}", tree[&w]);
+    println!("\nPath from best score to root (w={})", max_pos);
+    let mut cnode = &tree[&max_pos];
+    println!("{:?}", tree[&max_pos]);
     while cnode.parent != cnode.pos {
         cnode = &tree[&cnode.parent];
         println!("{:?}", &cnode);
     }
 
-    (max_score, max_i, max_j)
+    (max_score, max_pos)
 }
 
 fn main() {
@@ -226,11 +228,10 @@ fn main() {
     let y = String::from("ATCGT");
 
 
-    let (score, max_i, max_j) = two_rows_alignment(&x[0..], &y[0..], 1, -1, -1);
+    let (score, max_pos) = two_rows_alignment(&x[0..], &y[0..], 1, -1, -1);
 
     println!("Alignment Score: {}", score);
-    println!("max_i: {}", max_i);
-    println!("max_j: {}", max_j);
+    println!("max_pos: {}", max_pos);
 }
 
 /*
