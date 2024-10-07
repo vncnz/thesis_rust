@@ -116,7 +116,7 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
     {
         // Ora possiamo ottenere un secondo riferimento mutabile, dopo aver rilasciato il precedente
         let p = tree.get_mut(&parent_id).unwrap();
-        if let Some(pos) = p.children.iter().position(|x| *x == node_pos) {
+        if let Some(pos) = p.children.iter().position(|x| *x == node_pos) { // TODO: Se tutto è corretto questo controllo è superfluo!
             p.children.swap_remove(pos);
         }
         // was_only_child = p.children.is_empty();
