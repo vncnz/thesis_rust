@@ -89,8 +89,8 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
         tree.remove(&n.pos);
         println!("Element {} dropped", n.pos);
     }
- } */
- fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) {
+} */
+fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) {
     println!("Pruning tree, node {}", w);
 
     if w == *protected {
@@ -134,7 +134,7 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
     }
 }
 
- fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
+fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
     let m = seq1.len();
     let n = seq2.len();
     let m1 = m + 1;
