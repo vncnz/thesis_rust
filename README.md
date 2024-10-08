@@ -7,7 +7,7 @@ Nothing
 
 ## TODOs
 - [x] Protect best node from pruning
-- [ ] Redo pruning on max_pos after change
+- [x] Redo pruning on max_pos after change
 - [ ] Extensive tests on this part before continue
 
 - [ ] Node collapsing: avoid node repeating "inline"
