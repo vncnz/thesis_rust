@@ -64,7 +64,7 @@ struct TreeNode {
 }
 
 fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
-    println!("{}, child of {}", w, &parent);
+    // println!("{}, child of {}", w, &parent);
     let p = tree.get_mut(&parent).unwrap();
     // TODO: mettere questo nuovo nodo sul parent
     p.children.push(w);
@@ -91,10 +91,10 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
     }
 } */
 fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) {
-    println!("Pruning tree, node {}", w);
+    // println!("Pruning tree, node {}", w);
 
     if w == *protected {
-        println!("Pruning stopped at {}: it is protected", w);
+        // println!("Pruning stopped at {}: it is protected", w);
         return;
     }
 
@@ -123,7 +123,7 @@ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) 
         children_num = p.children.len();
 
         tree.remove(&node_pos);
-        println!("Element {} dropped", node_pos);
+        // println!("Element {} dropped", node_pos);
     }
 
     // if was_only_child {
@@ -203,6 +203,8 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
             // Traccia il punteggio massimo e la sua posizione
         }
         if dp[1][m1-1] > max_score {
+            // tree_prune(max_pos, &mut tree, &((j+1)*m1 -1));
+            // Occhio ad eliminarlo solo se non ha figli, tree_node al momento non fa questo controllo
             max_score = dp[1][m1-1];
             max_pos = (j+1)*m1 -1;
         }
@@ -212,17 +214,23 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
         dp.swap(0, 1);
     }
 
-    println!("Matrix size {} x {}", m1, n1);
+    println!("Matrix size {} x {} = {}", m1, n1, m1*n1);
+    println!("Tree size {} nodes", tree.len());
 
-    println!("\nFull schema saved in memory");
-    print_hash_map(&tree);
+    if tree.len() < 70 {
+        println!("\nFull schema saved in memory");
+        print_hash_map(&tree);
 
-    println!("\nPath from best score to root (w={})", max_pos);
-    let mut cnode = &tree[&max_pos];
-    println!("{:?}", tree[&max_pos]);
-    while cnode.parent != cnode.pos {
-        cnode = &tree[&cnode.parent];
-        println!("{:?}", &cnode);
+        println!("\nPath from best score to root (w={})", max_pos);
+        let mut cnode = &tree[&max_pos];
+        println!("{:?}", tree[&max_pos]);
+        while cnode.parent != cnode.pos {
+            cnode = &tree[&cnode.parent];
+            println!("{:?}", &cnode);
+        }
+
+    } else {
+        println!("\nFull schema saved in memory too big to be printed, sorry");
     }
 
     (max_score, max_pos)
