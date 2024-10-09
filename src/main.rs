@@ -91,7 +91,8 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
     }
 } */
 fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) {
-    // println!("Pruning tree, node {}", w);
+    
+    // if w == 14 || w == 24 { println!("Pruning tree, node {}, protected is {}", w, protected); }
 
     if w == *protected {
         // println!("Pruning stopped at {}: it is protected", w);
@@ -104,6 +105,7 @@ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) 
     {
         // Primo riferimento mutabile: recuperiamo il nodo n
         let n = tree.get_mut(&w).unwrap();
+        // if w == 14 || w == 24 { println!("{:?}", &n); }
         if n.children.len() > 0 {
             return; // Se ci sono figli, non facciamo nulla
         }
@@ -126,10 +128,12 @@ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) 
         // println!("Element {} dropped", node_pos);
     }
 
+    // if w == 14 || w == 24 { println!("children_num of {} is {}", parent_id, children_num); }
+
     // if was_only_child {
-    if children_num == 1 {
+    if children_num == 0 {
         tree_prune(parent_id, tree, protected);
-    } else if children_num == 2 {
+    } else if children_num == 1 {
         // TODO: Now w is an onlychild, we can check if it is "inline" and, if it is, skip its parent
     }
 }
@@ -175,7 +179,7 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
         }
 
         for i in 1..m1 {
-            if j == 27 { println!("\nRow i={}", i); }
+            // if j == 27 { println!("\nRow i={}", i); }
             let w = j*m1 + i;
             // println!("w={} m1={} j={} i={}", w, &m1, &j, &i);
             let match_mismatch_delta_points = dp[0][i - 1]
@@ -210,6 +214,8 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
             max_pos = (j+1)*m1 -1;
         }
 
+        // if j < 5 { print_hash_map(&tree); }
+
         // Scambia le righe. In realtà mi interessa solo che la seconda diventi prima, la nuova seconda la sovrascrivo senza guardarla. In futuro, quando avrò le de-strings, dovrà essere più elaborato
         // dp[0].clone_from_slice(&dp[1]);
         dp.swap(0, 1);
@@ -238,10 +244,22 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
 }
 
 fn main() {
-    let x = String::from("CCGGGTTTA");
-    let y = String::from("ACCTTCGGGCCAGTCATATTTCA");
+
+    // example 0
     // let x = String::from("AGT");
     // let y = String::from("ATCGT");
+
+    // example 1
+    // let x = String::from("CCTA");
+    // let y = String::from("ACCTTCCATACCAGTCA");
+
+    // example 2
+    // let x = String::from("GAAAAAAATAACCAGCATTTA");
+    // let y = String::from("ACCTTCCATACCAGTCAAGGGGGGAAAAAAACCCACAACAAACCAGCATTTAAACAAAAAATGGAGAAGTGATAGATATTTTTGCTGTGTGTGTTTGTAGCATAGAAACTGCCGCGCAGGTGAAGAAAATGAAGAACTCGAAAAGAAAAGTGTGGGGTTATACTACACTACGGGATGAGAGAGTACA");
+
+    // example 5
+    let x = String::from("CCGGGTTTA");
+    let y = String::from("ACCTTCGGGCCAGTCATATTTCA");
 
     let (score, max_pos) = two_rows_alignment(&x[0..], &y[0..], 1, -1, -1);
 
