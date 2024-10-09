@@ -9,6 +9,7 @@ Nothing
 - [x] Protect best node from pruning
 - [x] Redo pruning on max_pos after change
 - [ ] Extensive tests on this part before continue
+- [ ] Update thesis wrt updates in code
 
 - [ ] Node collapsing: avoid node repeating "inline"
 - [ ] Non-branching nodes: move them in a dedicated structure property
