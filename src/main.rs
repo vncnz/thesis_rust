@@ -144,16 +144,13 @@ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) 
         }
 
         // Se il genitore non ha più figli, proseguiamo potando il genitore
-        if children_num == 0 {
-            current_node = parent_id;
-        } else {
-            // Se il genitore ha altri figli, possiamo interrompere
-            current_node = parent_id;
+        current_node = parent_id;
+        if children_num > 0 {
             break;
         }
     }
     if current_node != *protected && children_num == 1 {
-        println!("Exited on {}", current_node)
+        println!("Exited on {} and I can work on this node to skip it", current_node)
     } // Questo andrà gestito in futuro
 }
 
