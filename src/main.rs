@@ -170,8 +170,10 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
     }
 
     // Riempie la tabella DP e traccia il punteggio massimo
+    let mut ratio: f64 = 100.0;
     for j in 1..n1 {
-        println!("\nRow j={} tree is {}%", j, ((100 * tree.len() / (m1*j)) as f64).round());
+        ratio = ((100 * tree.len() / (m1*j)) as f64).round();
+        println!("\nRow j={} tree is {}%", j, ratio);
         dp[1][0] = std::cmp::max(0, dp[0][0] + gap);
         create_node(j*m1, (j - 1)*m1, &mut tree);
         if j > 1 {
@@ -222,7 +224,8 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
     }
 
     println!("Matrix size {} x {} = {}", m1, n1, m1*n1);
-    println!("Tree size {} nodes", tree.len());
+    println!("Tree size {} nodes ({}% of matrix size)", tree.len(), ratio);
+    println!("m is {} and m^2 is {}", m, m*m);
 
     if tree.len() < 170 {
         println!("\nFull schema saved in memory");
@@ -254,12 +257,12 @@ fn main() {
     // let y = String::from("ACCTTCCATACCAGTCA");
 
     // example 2
-    // let x = String::from("GAAAAAAATAACCAGCATTTA");
-    // let y = String::from("ACCTTCCATACCAGTCAAGGGGGGAAAAAAACCCACAACAAACCAGCATTTAAACAAAAAATGGAGAAGTGATAGATATTTTTGCTGTGTGTGTTTGTAGCATAGAAACTGCCGCGCAGGTGAAGAAAATGAAGAACTCGAAAAGAAAAGTGTGGGGTTATACTACACTACGGGATGAGAGAGTACA");
+    let x = String::from("GAAAAAAATAACCAGCATTTA");
+    let y = String::from("ACCTTCCATACCAGTCAAGGGGGGAAAAAAACCCACAACAAACCAGCATTTAAACAAAAAATGGAGAAGTGATAGATATTTTTGCTGTGTGTGTTTGTAGCATAGAAACTGCCGCGCAGGTGAAGAAAATGAAGAACTCGAAAAGAAAAGTGTGGGGTTATACTACACTACGGGATGAGAGAGTACA");
 
     // example 5
-    let x = String::from("CCGGGTTTA");
-    let y = String::from("ACCTTCGGGCCAGTCATATTTCA");
+    // let x = String::from("CCGGGTTTA");
+    // let y = String::from("ACCTTCGGGCCAGTCATATTTCA");
 
     let (score, max_pos) = two_rows_alignment(&x[0..], &y[0..], 1, -1, -1);
 
