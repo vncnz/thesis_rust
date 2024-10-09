@@ -107,11 +107,11 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
 } */
 fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) {
     
-    let mut current_node = w;
+    let mut current_node: usize = w;
+    let mut children_num: usize = 100;
 
     while current_node != *protected {
         let parent_id;
-        let node_pos;
         
         // Primo riferimento mutabile: recuperiamo il nodo corrente
         {
@@ -124,16 +124,15 @@ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) 
 
             // Altrimenti, raccogliamo le informazioni sul nodo corrente
             parent_id = n.parent;
-            node_pos = n.pos;
         }
 
-        let children_num: usize;
+        // let children_num: usize;
         {
             // Recuperiamo il genitore del nodo corrente
             let p: &mut TreeNode = tree.get_mut(&parent_id).unwrap();
             
             // Rimuoviamo il nodo corrente dalla lista dei figli del genitore
-            if let Some(pos) = p.children.iter().position(|x: &usize| *x == node_pos) {
+            if let Some(pos) = p.children.iter().position(|x: &usize| *x == current_node) {
                 p.children.swap_remove(pos);
             }
 
@@ -141,7 +140,7 @@ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) 
             children_num = p.children.len();
 
             // Rimuoviamo il nodo corrente dall'albero
-            tree.remove(&node_pos);
+            tree.remove(&current_node);
         }
 
         // Se il genitore non ha più figli, proseguiamo potando il genitore
@@ -149,10 +148,13 @@ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize) 
             current_node = parent_id;
         } else {
             // Se il genitore ha altri figli, possiamo interrompere
+            current_node = parent_id;
             break;
         }
     }
-    // if current_node != *protected {} Questo andrà gestito in futuro
+    if current_node != *protected && children_num == 1 {
+        println!("Exited on {}", current_node)
+    } // Questo andrà gestito in futuro
 }
 
 fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
