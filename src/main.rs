@@ -174,13 +174,13 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
     // Inizializza il dict
     let mut tree = HashMap::with_capacity(n * 2);
     // create_node(0, 0, &mut tree);
-    let n = TreeNode {
+    let node = TreeNode {
         pos: 0,
         parent: 0,
         children: Vec::new(),
         depth: 0
     };
-    tree.insert(n.pos, n);
+    tree.insert(node.pos, node);
 
     // Inizializza la prima riga
     for i in 1..m1 {
@@ -244,7 +244,7 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
 
     println!("Matrix size {} x {} = {}", m1, n1, m1*n1);
     println!("Tree size {} nodes ({}% of matrix size)", tree.len(), ratio);
-    println!("m is {} and m^2 is {}", m, m*m);
+    println!("m is {} and m^2 is {}. n+m is {}", m, m*m, n+m);
 
     if tree.len() < 170 {
         println!("\nFull schema saved in memory");
