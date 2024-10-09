@@ -54,6 +54,25 @@ fn print_hash_map(map: &HashMap<usize, TreeNode>) {
     }
     // map.clear();
 }
+fn print_path_to_root_compressed(starting: usize, map: &HashMap<usize, TreeNode>) {
+    let mut path = format!("{}", map[&starting].pos);
+    let mut cnode = &map[&starting];
+    while cnode.parent != cnode.pos {
+        cnode = &map[&cnode.parent];
+        // println!("{:?}", &cnode);
+        let f = format!(" -> {:?}", &cnode.pos);
+        path.push_str(&f);
+    }
+    println!("{}", path);
+}
+fn print_path_to_root_full(starting: usize, map: &HashMap<usize, TreeNode>) {
+    let mut cnode = &map[&starting];
+    println!("{:?}", cnode);
+    while cnode.parent != cnode.pos {
+        cnode = &map[&cnode.parent];
+        println!("{:?}", &cnode);
+    }
+}
 
  #[derive(Debug)]
 struct TreeNode {
@@ -232,15 +251,11 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
         print_hash_map(&tree);
 
         println!("\nPath from best score to root (w={})", max_pos);
-        let mut cnode = &tree[&max_pos];
-        println!("{:?}", tree[&max_pos]);
-        while cnode.parent != cnode.pos {
-            cnode = &tree[&cnode.parent];
-            println!("{:?}", &cnode);
-        }
-
+        print_path_to_root_full(max_pos, &tree);
     } else {
         println!("\nFull schema saved in memory too big to be printed, sorry");
+        println!("\nPath from best score to root (w={})", max_pos);
+        print_path_to_root_compressed(max_pos, &tree);
     }
 
     (max_score, max_pos)
