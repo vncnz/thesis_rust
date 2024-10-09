@@ -3,7 +3,7 @@ This is a private project.
 
 
 ## Notes
-Nothing
+Install https://code.visualstudio.com/docs/languages/rust
 
 ## TODOs
 - [x] Protect best node from pruning
