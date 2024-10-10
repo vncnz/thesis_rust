@@ -28,3 +28,22 @@ Tree size  | Versione
 m is 2_884 and m^2 is 8_317_456. n+m is 26_433
 
 Alignment Score is 1_431 and max_pos is 15_919_429
+
+
+
+
+
+=======================
+
+TODO solo albero?
+
+Row j=23549 tree is 0%
+Matrix size 2885 x 23550 = 67941750
+Tree size 64001 nodes (0% of matrix size)
+m is 2884 and m^2 is 8317456. n+m is 26433
+
+Full schema saved in memory too big to be printed, sorry
+
+Path from best score to root (w=15919429)
+Alignment Score: 1431
+max_pos: 15919429

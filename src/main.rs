@@ -171,6 +171,8 @@ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, 
             skip_node(current_node, tree);
         } else {
             // println!("Exited on {} and I can work on this node to skip it?", current_node);
+            // In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
+            skip_node(current_node, tree);
         }
     } // Questo andrà gestito in futuro
 }
