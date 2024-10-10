@@ -117,16 +117,20 @@ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, 
     let mut current_node: usize = w;
     let mut children_num: usize = 100;
 
+    // println!("tree_prune on {}", w);
+
     while current_node != *protected {
         let parent_id;
         
         // Primo riferimento mutabile: recuperiamo il nodo corrente
         {
             let n: &mut TreeNode = get_mut_from_map(tree, &current_node); // tree.get_mut(&current_node).expect(&format!("Key not found in tree: {}", current_node));
+            // println!("      working on {:?}", n);
 
             // Se il nodo ha figli, non facciamo nulla e interrompiamo il ciclo
             if n.children.len() > 0 {
-                return;
+                children_num = n.children.len();
+                break;
             }
 
             // Altrimenti, raccogliamo le informazioni sul nodo corrente
@@ -156,25 +160,29 @@ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, 
             break;
         }
     }
+
     if current_node != *protected && children_num == 1 && current_node != 0 {
         let n: &mut TreeNode = get_mut_from_map(tree, &current_node);
-        let hmov = (current_node % m1 - n.parent % m1) as i64;
-        let vmov = (current_node / m1) as i64 - (n.parent / m1) as i64;
-        if hmov == vmov {
+        let hmov0 = (current_node % m1 - n.parent % m1) as i64;
+        let hmov1 = (n.children[0] % m1 - n.pos % m1) as i64;
+        let vmov0 = (current_node / m1) as i64 - (n.parent / m1) as i64;
+        let vmov1 = (n.children[0] / m1) as i64 - (n.pos / m1) as i64;
+        if hmov0 == vmov0 && hmov1 == vmov1 {
             // println!("Exited on {} and I can skip it (diag [to be extended]) {:?}", current_node, n);
             skip_node(current_node, tree);
-        } else if hmov == 0 {
+        } else if hmov0 == 0 && hmov1 == 0 {
             // println!("Exited on {} and I can skip it (vertical) {:?}", current_node, n);
             skip_node(current_node, tree);
-        } else if vmov == 0 {
+        } else if vmov0 == 0 && vmov1 == 0 {
             // println!("Exited on {} and I can skip it (horizontal) {:?}", current_node, n);
             skip_node(current_node, tree);
         } else {
             // println!("Exited on {} and I can work on this node to skip it?", current_node);
             // In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
+            // La possiamo chiamare "tree mode"
             skip_node(current_node, tree);
         }
-    } // Questo andrà gestito in futuro
+    } // Questo abilita la "nuova versione"
 }
 
 fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
@@ -241,7 +249,7 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
     let mut ratio: f64 = 100.0;
     for j in 1..n1 {
         ratio = ((100 * tree.len() / (m1*j)) as f64).round();
-        println!("\nRow j={} tree is {}%", j, ratio);
+        if j % 10 == 0 { println!("\nRow j={} tree is {}%", j, ratio); }
         dp[1][0] = std::cmp::max(0, dp[0][0] + gap);
         create_node(j*m1, (j - 1)*m1, &mut tree);
         if j > 1 {
@@ -262,7 +270,8 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
             if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
                 dp[1][i] = match_mismatch_delta_points;
                 create_node(w, w - m1 - 1, &mut tree);
-                // Qui niente prune dell'elemento in diagonale, è ovviamente non leaf!
+                // L'elemento in diagonale ovviamente non è leaf ma per la versione con percorsi compressi ci serve comunque valutarla?
+                tree_prune(w - m1 - 1, &mut tree, &max_pos, &m1);
             } else if delete >= insert {
                 dp[1][i] = delete;
                 create_node(w, w - m1, &mut tree);
@@ -283,6 +292,7 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
             max_score = dp[1][m1-1];
             max_pos = (j+1)*m1 -1;
         }
+        if j < 8 { print_hash_map(&tree); }
 
         // if j < 10 { print_hash_map(&tree); }
 

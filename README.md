@@ -22,8 +22,8 @@ Tree size  | Versione
 ----------:|:--------
 67_941_750 | 1 (full)
 119_072 | 2 (pruning)
-83_839 | 3 (partial collapsing)
-66_727 | 3 (full collapsing)
+18_658 | 3 (collapsing)
+4_886 | 4 (tree mode)
 
 m is 2_884 and m^2 is 8_317_456. n+m is 26_433
 
@@ -35,11 +35,8 @@ Alignment Score is 1_431 and max_pos is 15_919_429
 
 =======================
 
-TODO solo albero?
-
-Row j=23549 tree is 0%
 Matrix size 2885 x 23550 = 67941750
-Tree size 64001 nodes (0% of matrix size)
+Tree size 18658 nodes (0% of matrix size)
 m is 2884 and m^2 is 8317456. n+m is 26433
 
 Full schema saved in memory too big to be printed, sorry
