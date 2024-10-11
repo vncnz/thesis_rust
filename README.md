@@ -18,29 +18,15 @@ Install https://code.visualstudio.com/docs/languages/rust
 
 Matrix size 2_885 x 23_550 = 67_941_750
 
-Tree size  | Versione
-----------:|:--------
-67_941_750 | 1 (full)
-119_072 | 2 (pruning)
-18_658 | 3 (collapsing)
-4_886 | 4 (tree mode)
+Tree size  | Versione   | RAM (approx)
+----------:|:-----------|-------------
+67_941_750 | 1 (full)   | 11gb
+119_072 | 2 (pruning)   | 130mb
+18_658 | 3 (collapsing) | 35mb
+4_886 | 4 (tree mode)   | 19mb
 
-m is 2_884 and m^2 is 8_317_456. n+m is 26_433
+Note 1: RAM is measured as approximation during non-optimized execution with cargo.
 
-Alignment Score is 1_431 and max_pos is 15_919_429
+Note 2: m is 2_884 and m^2 is 8_317_456. n+m is 26_433
 
-
-
-
-
-=======================
-
-Matrix size 2885 x 23550 = 67941750
-Tree size 18658 nodes (0% of matrix size)
-m is 2884 and m^2 is 8317456. n+m is 26433
-
-Full schema saved in memory too big to be printed, sorry
-
-Path from best score to root (w=15919429)
-Alignment Score: 1431
-max_pos: 15919429
+Note 3: Alignment Score is 1_431 and max_pos is 15_919_429
