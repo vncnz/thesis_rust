@@ -13,6 +13,7 @@ Install https://code.visualstudio.com/docs/languages/rust
 - [ ] Extensive tests on what I did until now
 - [ ] Update thesis wrt updates in code
 - [ ] Non-branching nodes: move them in a dedicated structure property?
+- [ ] Exclude from computation nodes that can't get a better result than the best?
 
 ## "Benchmark"
 
