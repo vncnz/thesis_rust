@@ -20,19 +20,19 @@ Matrix size 2_885 x 23_550 = 67_941_750
 
 Windows, not optimized compilation:
 Tree size  | Versione   | RAM (approx)
-----------:|:-----------|-------------
+----------:|:-----------|-------------:
 67_941_750 | 1 (full)   | ~11gb (win, non opt)
 119_072 | 2 (pruning)   | ~130mb (win, non opt)
 18_658 | 3 (collapsing) | ~35mb (win, non opt)
 4_886 | 4 (tree mode)   | ~19mb (win, non opt)
 
 Linux, optimized compilation:
-Tree size  | Versione   | RAM (approx)            | time
-----------:|:-----------|-------------------------|-----
+Tree size  | Versione   | RAM (measured)          | time
+----------:|:-----------|------------------------:|-----
 67_941_750 | 1 (full)   | 10_998_636kb (lin, opt) | 46.83s
-119_072 | 2 (pruning)   | 51556kb (lin, opt)      | 34.33s
-18_658 | 3 (collapsing) | 6684kb (lin, opt)       | 27.17s
-4_886 | 4 (tree mode)   | 6124kb (lin, opt)       | 24.85s
+119_072 | 2 (pruning)   | 51_556kb (lin, opt)     | 34.33s
+18_658 | 3 (collapsing) | 6_684kb (lin, opt)      | 27.17s
+4_886 | 4 (tree mode)   | 6_124kb (lin, opt)      | 24.85s
 
 Note 1: RAM in the first table is measured as approximation during non-optimized execution with cargo.
 
