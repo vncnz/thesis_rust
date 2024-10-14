@@ -14,6 +14,7 @@ Install https://code.visualstudio.com/docs/languages/rust
 - [ ] Update thesis wrt updates in code
 - [ ] Non-branching nodes: move them in a dedicated structure property?
 - [ ] Exclude from computation nodes that can't get a better result than the best?
+- [ ] Change computation order to diagonals and parallelize them?
 
 ## "Benchmark"
 
