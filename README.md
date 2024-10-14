@@ -146,3 +146,11 @@ Note 3: Alignment Score is 1_431 and max_pos is 15_919_429
         Signals delivered: 0
         Page size (bytes): 4096
         Exit status: 0
+
+
+
+========= On windows
+
+Row j=23500 tree is 0%
+Current physical memory usage: 7438336
+Current virtual memory usage: 4755456

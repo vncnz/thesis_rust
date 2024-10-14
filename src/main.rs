@@ -41,6 +41,7 @@ fn main() {
 
  use std::collections::HashMap;
  use itertools::Itertools;
+ use memory_stats::memory_stats;
 
 fn print_hash_map(map: &HashMap<usize, TreeNode>) {
     // for (key, value) in &*map {
@@ -249,7 +250,16 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
     let mut ratio: f64 = 100.0;
     for j in 1..n1 {
         ratio = ((100 * tree.len() / (m1*j)) as f64).round();
-        if j % 100 == 0 { println!("\nRow j={} tree is {}%", j, ratio); }
+        if j % 500 == 0 {
+            println!("\nRow j={} tree is {}%", j, ratio);
+
+            if let Some(usage) = memory_stats() {
+                println!("Current physical memory usage: {}", usage.physical_mem);
+                println!("Current virtual memory usage: {}", usage.virtual_mem);
+            } else {
+                println!("Couldn't get the current memory usage :(");
+            }
+        }
         dp[1][0] = std::cmp::max(0, dp[0][0] + gap);
         create_node(j*m1, (j - 1)*m1, &mut tree);
         if j > 1 {
@@ -292,7 +302,7 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
             max_score = dp[1][m1-1];
             max_pos = (j+1)*m1 -1;
         }
-        if j < 8 { print_hash_map(&tree); }
+        // if j < 8 { print_hash_map(&tree); }
 
         // if j < 10 { print_hash_map(&tree); }
 
