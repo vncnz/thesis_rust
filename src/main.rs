@@ -249,7 +249,7 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
     let mut ratio: f64 = 100.0;
     for j in 1..n1 {
         ratio = ((100 * tree.len() / (m1*j)) as f64).round();
-        if j % 500 == 0 {
+        if j % std::cmp::max(1 as usize, (n/20) as usize) == 0 {
             println!("\nRow j={} tree is {}%", j, ratio);
 
             if let Some(usage) = memory_stats() {
