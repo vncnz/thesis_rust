@@ -10,6 +10,7 @@ Install https://code.visualstudio.com/docs/languages/rust
 - [x] Redo pruning on max_pos after change
 - [x] Node collapsing: avoid node repeating "inline". Instead of check recursively like done in python I can touch/verify the element on that the tree pruning stops. To be checked also the new nodes when I'm leaving them.
 - [x] Tree mode
+- [ ] Add alignment recostruction
 - [ ] Extensive tests on what I did until now
 - [ ] Update thesis wrt updates in code
 - [ ] Non-branching nodes: move them in a dedicated structure property?

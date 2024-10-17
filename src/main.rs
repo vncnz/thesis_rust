@@ -71,6 +71,29 @@ fn print_path_to_root_full(starting: usize, map: &HashMap<usize, TreeNode>) {
     }
 }
 
+fn nodes_relationship (current_node: usize, parent: usize, m1: usize) {
+    let hmov0 = (current_node % m1 - parent % m1) as i64;
+    let vmov0 = (current_node / m1) as i64 - (parent / m1) as i64;
+    if hmov0 == vmov0 {
+        // skip_node(current_node, tree);
+    } else if hmov0 == 0 {
+        // skip_node(current_node, tree);
+    } else if vmov0 == 0 {
+        // skip_node(current_node, tree);
+    }
+}
+
+fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str) {
+    let mut cnode = &map[&max_points_pos];
+    println!("{:?}", cnode);
+    while cnode.parent != cnode.pos {
+        cnode = get_from_map(map, &cnode.parent); // &map[&cnode.parent];
+        println!("{:?}", &cnode);
+    }
+}
+
+
+
  #[derive(Debug)]
 struct TreeNode {
     pos: usize,
@@ -320,6 +343,7 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
 
         println!("\nPath from best score to root (w={})", max_pos);
         print_path_to_root_full(max_pos, &tree);
+        print_alignment(max_pos, &tree, seq1, seq2);
     } else if tree.len() < 1_000 {
         println!("\nFull schema saved in memory too big to be printed, sorry");
         println!("\nPath from best score to root (w={})", max_pos);
