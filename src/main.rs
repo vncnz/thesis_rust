@@ -39,9 +39,11 @@ fn main() {
 }
  */
 
- use std::collections::HashMap;
- use itertools::Itertools;
- use memory_stats::memory_stats;
+use std::collections::HashMap;
+use itertools::Itertools;
+use memory_stats::memory_stats;
+
+static TREE_MODE: bool = false;
 
 fn print_hash_map(map: &HashMap<usize, TreeNode>) {
     // for (key, value) in &*map {
@@ -71,25 +73,58 @@ fn print_path_to_root_full(starting: usize, map: &HashMap<usize, TreeNode>) {
     }
 }
 
-fn nodes_relationship (current_node: usize, parent: usize, m1: usize) {
-    let hmov0 = (current_node % m1 - parent % m1) as i64;
-    let vmov0 = (current_node / m1) as i64 - (parent / m1) as i64;
-    if hmov0 == vmov0 {
-        // skip_node(current_node, tree);
-    } else if hmov0 == 0 {
-        // skip_node(current_node, tree);
-    } else if vmov0 == 0 {
-        // skip_node(current_node, tree);
-    }
+#[derive(Debug)]
+struct Relationship {
+    d: bool,
+    v: bool,
+    h: bool
+}
+fn nodes_relationship (current_node: usize, parent: usize, m1: usize) -> Relationship {
+    // println!("Computing relation between {} and {}", current_node, parent);
+    let vmov0 = (current_node % m1 - parent % m1) as i64;
+    let hmov0 = (current_node / m1) as i64 - (parent / m1) as i64;
+    let r = Relationship { d: hmov0 == vmov0, v: vmov0 == 0, h: hmov0 == 0 };
+    // println!("Computing relation between {} and {} {:?}", current_node, parent, r);
+    r
 }
 
-fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str) {
-    let mut cnode = &map[&max_points_pos];
+fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize) {
+    let seq1v: Vec<char> = seq1.chars().collect();
+    let seq2v: Vec<char> = seq2.chars().collect();
+    let end_pos = (seq1v.len() + 1) * (seq2v.len() + 1) - 1;
+    // println!("end pos is {}", end_pos);
+    let mut a: String = "".to_owned();
+    let mut b: String = "".to_owned();
+    // let mut cnode = &map[&max_points_pos];
+    let mut cnode = &TreeNode { pos: end_pos, parent: max_points_pos, children: [].to_vec(), depth: 0 };
     println!("{:?}", cnode);
     while cnode.parent != cnode.pos {
+        let mut p = cnode.pos;
+        while p > cnode.parent {
+            let r = nodes_relationship(p, cnode.parent, m1);
+            println!("{}", p);
+            assert!(r.v || r.h || r.d, "Wrong relationship between {} and {}", p, cnode.parent);
+            if r.v {
+                p = p - m1;
+                a.insert(0, '-');
+                b.insert(0, seq2v[(p / m1) as usize]);
+            }
+            else if r.h {
+                p = p - 1;
+                a.insert(0, seq1v[p % m1]);
+                b.insert(0, '-');
+            }
+            else if r.d {
+                p = p - m1 - 1;
+                a.insert(0, seq1v[p % m1]);
+                b.insert(0, seq2v[(p / m1) as usize]);
+            }
+        }
         cnode = get_from_map(map, &cnode.parent); // &map[&cnode.parent];
         println!("{:?}", &cnode);
     }
+    println!("{}", a);
+    println!("{}", b);
 }
 
 
@@ -186,24 +221,24 @@ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, 
 
     if current_node != *protected && children_num == 1 && current_node != 0 {
         let n: &mut TreeNode = get_mut_from_map(tree, &current_node);
-        let hmov0 = (current_node % m1 - n.parent % m1) as i64;
-        let hmov1 = (n.children[0] % m1 - n.pos % m1) as i64;
-        let vmov0 = (current_node / m1) as i64 - (n.parent / m1) as i64;
-        let vmov1 = (n.children[0] / m1) as i64 - (n.pos / m1) as i64;
+        let vmov0 = (current_node % m1 - n.parent % m1) as i64;
+        let vmov1 = (n.children[0] % m1 - n.pos % m1) as i64;
+        let hmov0 = (current_node / m1) as i64 - (n.parent / m1) as i64;
+        let hmov1 = (n.children[0] / m1) as i64 - (n.pos / m1) as i64;
         if hmov0 == vmov0 && hmov1 == vmov1 {
             // println!("Exited on {} and I can skip it (diag [to be extended]) {:?}", current_node, n);
             skip_node(current_node, tree);
         } else if hmov0 == 0 && hmov1 == 0 {
-            // println!("Exited on {} and I can skip it (vertical) {:?}", current_node, n);
+            // println!("Exited on {} and I can skip it (horizontal) {:?}", current_node, n);
             skip_node(current_node, tree);
         } else if vmov0 == 0 && vmov1 == 0 {
-            // println!("Exited on {} and I can skip it (horizontal) {:?}", current_node, n);
+            // println!("Exited on {} and I can skip it (vertical) {:?}", current_node, n);
             skip_node(current_node, tree);
         } else {
             // println!("Exited on {} and I can work on this node to skip it?", current_node);
             // In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
             // La possiamo chiamare "tree mode"
-            skip_node(current_node, tree);
+            if TREE_MODE { skip_node(current_node, tree); }
         }
     } // Questo abilita la "nuova versione"
 }
@@ -343,7 +378,7 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
 
         println!("\nPath from best score to root (w={})", max_pos);
         print_path_to_root_full(max_pos, &tree);
-        print_alignment(max_pos, &tree, seq1, seq2);
+        print_alignment(max_pos, &tree, seq1, seq2, m1);
     } else if tree.len() < 1_000 {
         println!("\nFull schema saved in memory too big to be printed, sorry");
         println!("\nPath from best score to root (w={})", max_pos);
@@ -359,12 +394,12 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
 fn main() {
 
     // example 0
-    let x = String::from("AGT");
-    let y = String::from("ATCGT");
+    // let x = String::from("AGT");
+    // let y = String::from("ATCGT");
 
     // example 1
-    // let x = String::from("CCTA");
-    // let y = String::from("ACCTTCCATACCAGTCA");
+    let x = String::from("CCTA");
+    let y = String::from("ACCTTCCATACCAGTCA");
 
     // example 2
     // let x = String::from("GAAAAAAATAACCAGCATTTA");
