@@ -158,3 +158,9 @@ Note 3: Alignment Score is 1_431 and max_pos is 15_919_429
 Row j=23500 tree is 0%
 Current physical memory usage: 7438336
 Current virtual memory usage: 4755456
+
+========= On linux
+
+Row j=23540 tree is 0%
+Current physical memory usage: 6209536
+Current virtual memory usage: 7327744
