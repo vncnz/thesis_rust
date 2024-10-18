@@ -12,6 +12,7 @@ Install https://code.visualstudio.com/docs/languages/rust
 - [x] Tree mode
 - [x] Add alignment recostruction
 - [ ] Check to use max_value if it is in last line, too
+- [ ] Create a "drawer" in Python for thesis images
 - [ ] Extensive tests on what I did until now
 - [ ] Fix the disalignment between max_memory statistics and the number of nodes reported (which is not the max but the last)
 - [ ] Update thesis wrt updates in code

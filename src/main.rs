@@ -40,8 +40,20 @@ fn main() {
  */
 
 use std::collections::HashMap;
+// use std::fs;
+// use serde_json;
 use itertools::Itertools;
 use memory_stats::memory_stats;
+
+/* fn read_file (path: &str) {
+    fs::read_to_string(path).expect("Unable to read file");
+}
+fn write_file (path: &str, data: &str) {
+    fs::write(path, data).expect("Unable to write file");
+} */
+/* fn write_json () {
+    serde_json::to_writer(file, hashmap)?;
+} */
 
 static TREE_MODE: bool = false;
 // static VERBOSE_MODE: bool = false;
