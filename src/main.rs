@@ -249,7 +249,7 @@ fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, 
             skip_node(current_node, tree);
         } else if TREE_MODE {
             // println!("Exited on {} and I can work on this node to skip it?", current_node);
-            // In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
+            //* In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
             // La possiamo chiamare "tree mode"
             skip_node(current_node, tree);
         }
@@ -352,7 +352,7 @@ fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, g
                 create_node(w, w - m1 - 1, &mut tree);
                 // L'elemento in diagonale ovviamente non è leaf ma per la versione con percorsi compressi ci serve comunque valutarla?
                 tree_prune(w - m1 - 1, &mut tree, &max_pos, &m1);
-            } else if delete >= insert {
+            } else if delete > insert { // * Preferiamo il movimento orizzontale!
                 dp[1][i] = delete;
                 create_node(w, w - m1, &mut tree);
                 tree_prune(w - m1 - 1, &mut tree, &max_pos, &m1); // prune dell'elemento in diagonale
