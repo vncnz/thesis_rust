@@ -1,48 +1,6 @@
-// Cargo.toml
-// [dependencies]
-// rand = "0.8"
-
-/* use std::collections::HashMap;
-use rand::Rng;
-
-fn create_large_dict(size: usize) -> HashMap<usize, i32> {
-    let mut dict = HashMap::with_capacity(size);
-    let mut rng = rand::thread_rng();
-    for i in 0..size {
-        dict.insert(i, rng.gen_range(1..=1000));
-    }
-    dict
-}
-
-fn manipulate_dict(d: &HashMap<usize, i32>) -> (i32, i32, HashMap<usize, i32>) {
-    // Somma tutti i valori
-    let total_sum: i32 = d.values().sum();
-
-    // Trova il massimo
-    let max_value = *d.values().max().unwrap();
-
-    // Eleva ogni valore al quadrato
-    let squared_dict: HashMap<usize, i32> = d.iter().map(|(&k, &v)| (k, v * v)).collect();
-
-    (total_sum, max_value, squared_dict)
-}
-
-fn main() {
-    let size = 10_000_000;  // Numero di chiavi nel dizionario
-    let large_dict1 = create_large_dict(size);
-    let large_dict2 = create_large_dict(size);
-    let large_dict3 = create_large_dict(size);
-    let _results1 = manipulate_dict(&large_dict1);
-    let _results2 = manipulate_dict(&large_dict2);
-    let _results3 = manipulate_dict(&large_dict3);
-    println!("Done");
-}
- */
-
 use std::collections::HashMap;
-// use std::fs;
-// use serde_json;
-use itertools::Itertools;
+mod common;
+use common::{create_node, get_from_map, nodes_relationship, print_hash_map, print_path_to_root_compressed, print_path_to_root_full, tree_prune, TreeNode};
 use memory_stats::memory_stats;
 
 /* fn read_file (path: &str) {
@@ -55,51 +13,7 @@ fn write_file (path: &str, data: &str) {
     serde_json::to_writer(file, hashmap)?;
 } */
 
-static TREE_MODE: bool = false;
 // static VERBOSE_MODE: bool = false;
-
-fn print_hash_map(map: &HashMap<usize, TreeNode>) {
-    // for (key, value) in &*map {
-    for key in map.keys().sorted() {
-        // println!("{:3} / {:?}", &key, &value);
-        println!("{:3} / {:?}", &key, map[key]);
-    }
-    // map.clear();
-}
-fn print_path_to_root_compressed(starting: usize, map: &HashMap<usize, TreeNode>) {
-    let mut path = format!("{}", map[&starting].pos);
-    let mut cnode = &map[&starting];
-    while cnode.parent != cnode.pos {
-        cnode = get_from_map(map, &cnode.parent); // &map[&cnode.parent];
-        // println!("{:?}", &cnode);
-        let f = format!(" -> {:?}", &cnode.pos);
-        path.push_str(&f);
-    }
-    println!("{}", path);
-}
-fn print_path_to_root_full(starting: usize, map: &HashMap<usize, TreeNode>) {
-    let mut cnode = &map[&starting];
-    println!("{:?}", cnode);
-    while cnode.parent != cnode.pos {
-        cnode = get_from_map(map, &cnode.parent); // &map[&cnode.parent];
-        println!("{:?}", &cnode);
-    }
-}
-
-#[derive(Debug)]
-struct Relationship {
-    d: bool,
-    v: bool,
-    h: bool
-}
-fn nodes_relationship (current_node: usize, parent: usize, m1: usize) -> Relationship {
-    // println!("Computing relation between {} and {}", current_node, parent);
-    let vmov0 = (current_node % m1 - parent % m1) as i64;
-    let hmov0 = (current_node / m1) as i64 - (parent / m1) as i64;
-    let r = Relationship { d: hmov0 == vmov0, v: vmov0 == 0, h: hmov0 == 0 };
-    // println!("Computing relation between {} and {} {:?}", current_node, parent, r);
-    r
-}
 
 fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize) {
     let seq1v: Vec<char> = seq1.chars().collect();
@@ -143,29 +57,6 @@ fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: 
     println!("{}", b);
 }
 
-
-
- #[derive(Debug)]
-struct TreeNode {
-    pos: usize,
-    parent: usize,
-    children: Vec<usize>,
-    depth: u32
-}
-
-fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
-    // println!("{}, child of {}", w, &parent);
-    let p = tree.get_mut(&parent).unwrap();
-    p.children.push(w);
-    let n = TreeNode {
-        pos: w,
-        parent: parent,
-        children: Vec::new(),
-        depth: p.depth + 1
-    };
-    tree.insert(n.pos, n);
-}
-
 /* fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>) {
     println!("Pruning tree starting at {}", w);
     let n = tree.get_mut(&w).unwrap();
@@ -179,114 +70,6 @@ fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
         println!("Element {} dropped", n.pos);
     }
 } */
-fn get_from_map<'a, K: Eq + std::hash::Hash + std::fmt::Debug, V>(map: &'a HashMap<K, V>, key: &K) -> &'a V {
-    map.get(key).expect(&format!("Key {:?} not found in map", key))
-}
-fn get_mut_from_map<'a, K: Eq + std::hash::Hash + std::fmt::Debug, V>(map: &'a mut HashMap<K, V>, key: &K) -> &'a mut V {
-    map.get_mut(key).expect(&format!("Key {:?} not found in map", key))
-}
-
-fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, m1: &usize) {
-    
-    let mut current_node: usize = w;
-    let mut children_num: usize = 100;
-
-    // println!("tree_prune on {}", w);
-
-    while current_node != *protected {
-        let parent_id;
-        
-        // Primo riferimento mutabile: recuperiamo il nodo corrente
-        {
-            let n: &mut TreeNode = get_mut_from_map(tree, &current_node); // tree.get_mut(&current_node).expect(&format!("Key not found in tree: {}", current_node));
-            // println!("      working on {:?}", n);
-
-            // Se il nodo ha figli, non facciamo nulla e interrompiamo il ciclo
-            if n.children.len() > 0 {
-                children_num = n.children.len();
-                break;
-            }
-
-            // Altrimenti, raccogliamo le informazioni sul nodo corrente
-            parent_id = n.parent;
-        }
-
-        // let children_num: usize;
-        {
-            // Recuperiamo il genitore del nodo corrente
-            let p: &mut TreeNode = get_mut_from_map(tree, &parent_id); // tree.get_mut(&parent_id).expect(&format!("Key not found in tree: {}", parent_id));
-            
-            // Rimuoviamo il nodo corrente dalla lista dei figli del genitore
-            if let Some(pos) = p.children.iter().position(|x: &usize| *x == current_node) {
-                p.children.swap_remove(pos);
-            }
-
-            // Verifichiamo se il genitore ha altri figli
-            children_num = p.children.len();
-
-            // Rimuoviamo il nodo corrente dall'albero
-            tree.remove(&current_node);
-        }
-
-        // Se il genitore non ha più figli, proseguiamo potando il genitore
-        current_node = parent_id;
-        if children_num > 0 {
-            break;
-        }
-    }
-
-    if current_node != *protected && children_num == 1 && current_node != 0 {
-        let n: &mut TreeNode = get_mut_from_map(tree, &current_node);
-        let vmov0 = (current_node % m1 - n.parent % m1) as i64;
-        let vmov1 = (n.children[0] % m1 - n.pos % m1) as i64;
-        let hmov0 = (current_node / m1) as i64 - (n.parent / m1) as i64;
-        let hmov1 = (n.children[0] / m1) as i64 - (n.pos / m1) as i64;
-        if hmov0 == vmov0 && hmov1 == vmov1 {
-            // println!("Exited on {} and I can skip it (diag [to be extended]) {:?}", current_node, n);
-            skip_node(current_node, tree);
-        } else if hmov0 == 0 && hmov1 == 0 {
-            // println!("Exited on {} and I can skip it (horizontal) {:?}", current_node, n);
-            skip_node(current_node, tree);
-        } else if vmov0 == 0 && vmov1 == 0 {
-            // println!("Exited on {} and I can skip it (vertical) {:?}", current_node, n);
-            skip_node(current_node, tree);
-        } else if TREE_MODE {
-            // println!("Exited on {} and I can work on this node to skip it?", current_node);
-            //* In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
-            // La possiamo chiamare "tree mode"
-            skip_node(current_node, tree);
-        }
-    } // Questo abilita la "nuova versione"
-}
-
-fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
-
-    let w0: usize;
-    let w2: usize;
-
-    {
-        let n: &mut TreeNode = get_mut_from_map(tree, &w);
-        w0 = n.parent;
-        w2 = n.children[0];
-    }
-
-    {
-        let n0: &mut TreeNode = get_mut_from_map(tree, &w0);
-
-        // Sostituiamo il nodo corrente dalla lista dei figli del genitore
-        if let Some(pos) = n0.children.iter().position(|x: &usize| *x == w) {
-            n0.children[pos] = w2;
-        }
-    }
-
-    {
-        let n2: &mut TreeNode = get_mut_from_map(tree, &w2);
-        n2.parent = w0;
-    }
-
-    // Rimuoviamo il nodo corrente dall'albero
-    tree.remove(&w);
-}
 
 fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize, Vec<usize>>) {
     let variants = HashMap::from([
@@ -317,26 +100,6 @@ fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize
     println!("dependences: {:?}", dependences);
     (faked, dependences)
 }
-
-/* def createConcatenatedAlternativesString (string):
-    faked = ''
-    last = -1
-    for l in string:
-        if l in placeholders:
-            split_at = last
-            for_merge = []
-            # len_pl = len(placeholders[0])
-            for pl in placeholders[l]:
-                row_exceptional_parents[last + 1] = [split_at]
-                last += len(pl)
-                for_merge.append(last)
-                faked += pl
-            row_exceptional_parents[last + 1] = for_merge
-        else:
-            last += 1
-            faked += l
-    return faked
-*/
 
 fn two_rows_alignment(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
 
