@@ -11,6 +11,7 @@ Install https://code.visualstudio.com/docs/languages/rust
 - [x] Node collapsing: avoid node repeating "inline". Instead of check recursively like done in python I can touch/verify the element on that the tree pruning stops. To be checked also the new nodes when I'm leaving them.
 - [x] Tree mode
 - [x] Add alignment recostruction
+- [x] Fix print_alignment if last part is equal
 - [ ] Check to use max_value if it is in last line, too
 - [ ] Create a "drawer" in Python for thesis images
 - [ ] Extensive tests on what I did until now
