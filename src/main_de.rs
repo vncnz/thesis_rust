@@ -141,7 +141,7 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
             tree_prune((j-1)*m1 - 1, &mut tree, &max_pos, &m1); // qui prune dell'ultimo elemento della riga appena abbandonata
         }
 
-        let mut uprow = Vec::new();
+        let mut uprow: Vec<usize> = (j*m1 .. (j+1)*m1).collect();
         if dependences.contains_key(&j) {
             let deps = get_from_map(&dependences, &j);
             println!("La riga {} è speciale: {:?}", j, deps);
@@ -163,8 +163,8 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
             // if j == 27 { println!("\nRow i={}", i); }
             
             let w: usize = j*m1 + i;
-            let wdiag: usize = w - m1 - 1;
-            let wup: usize = w - m1;
+            let wdiag: usize = uprow[i-1];
+            let wup: usize = uprow[i];
             let wleft: usize = w - 1;
             // println!("w={} m1={} j={} i={}", w, &m1, &j, &i);
             let match_mismatch_delta_points = get_from_map(&tree, &wdiag).points
@@ -177,19 +177,14 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
             if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
                 create_node(w, wdiag, match_mismatch_delta_points, &mut tree);
                 // L'elemento in diagonale ovviamente non è leaf ma per la versione con percorsi compressi ci serve comunque valutarla?
-                tree_prune(wdiag, &mut tree, &max_pos, &m1);
             } else if delete > insert { // * Preferiamo il movimento orizzontale!
                 create_node(w, wup, delete, &mut tree);
-                tree_prune(wdiag, &mut tree, &max_pos, &m1); // prune dell'elemento in diagonale
             } else {
                 create_node(w, wleft, insert, &mut tree);
-                tree_prune(wdiag, &mut tree, &max_pos, &m1); // prune dell'elemento in diagonale
             }
-
-            // dp[1][j] = std::cmp::max(match_mismatch_delta_points, std::cmp::max(delete, std::cmp::max(insert, 0)));
-
-            // Traccia il punteggio massimo e la sua posizione
+            tree_prune(wdiag, &mut tree, &max_pos, &m1);
         }
+
         let last_idx = j*m1 + m1 - 1;
         let last_node_points = get_from_map(&tree, &last_idx).points;
         if last_node_points > max_score {
