@@ -4,7 +4,7 @@ use memory_stats::memory_stats;
 #[path = "common.rs"] mod common;
 use common::{create_node, get_from_map, nodes_relationship, print_alignment, print_hash_map, print_path_to_root_compressed, print_path_to_root_full, tree_prune, TreeNode};
 
-fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize, Vec<usize>>) {
+/* fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize, Vec<usize>>) {
   let variants = HashMap::from([
       ('W', vec!["TTT", "CC"])
   ]);
@@ -32,7 +32,62 @@ fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize
   }
   println!("dependences: {:?}", dependences);
   (faked, dependences)
-}
+} */
+
+fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize, Vec<usize>>) {
+    let mut faked: String = String::new();
+    let mut dependences: HashMap<usize, Vec<usize>> = HashMap::new();
+  
+    let mut alternative: String = String::new();
+    let mut building_alternative: u8 = 0;
+    let mut start: usize = 0;
+    let mut derivates = Vec::new();
+    for c in seq.chars() {
+        match c {
+            'A' | 'C' | 'G' | 'T' => {
+                faked.push(c);
+            },
+            '[' => {
+                if building_alternative > 0 {
+                    panic!("Nested alternatives not supported!");
+                }
+                building_alternative = 1;
+                start = faked.len() - 1;
+            },
+            ']' => {
+                if building_alternative == 0 {
+                    panic!("Closing an alternative never opened!");
+                } else if building_alternative == 1 {
+                    panic!("Closing a fake alternative, at least an OR is mandatory!");
+                }
+                derivates.push(faked.len() - 1);
+                dependences.insert(faked.len() - 1, [start].to_vec());
+
+                let end = faked.len();
+                derivates.insert(0, start);
+                dependences.insert(end, derivates);
+                derivates = Vec::new();
+                building_alternative = 0;
+            },
+            '|' => {
+                if building_alternative == 0 {
+                    panic!("Alternative never opened!");
+                }
+                derivates.push(faked.len() - 1);
+                dependences.insert(faked.len() - 1, [start].to_vec());
+                building_alternative = 2;
+            },
+            _ => {
+                panic!("Wrong char in input sequence!");
+            }
+        };
+    }
+    if building_alternative != 0 {
+        panic!("Alternative never closed!");
+    }
+    println!("dependences: {:?}", dependences);
+    (faked, dependences)
+  }
 
 
 pub fn two_rows_alignment(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
