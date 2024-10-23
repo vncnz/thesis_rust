@@ -60,9 +60,9 @@ pub fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i3
         for i in 1..m1 {
             // if j == 27 { println!("\nRow i={}", i); }
             let w: usize = j*m1 + i;
-            let wdiag: usize = j*m1 + i - m1 - 1;
-            let wup: usize = j*m1 + i - m1;
-            let wleft: usize = j*m1 + i - 1;
+            let wdiag: usize = w - m1 - 1;
+            let wup: usize = w - m1;
+            let wleft: usize = w - 1;
             // println!("w={} m1={} j={} i={}", w, &m1, &j, &i);
             let match_mismatch_delta_points = get_from_map(&tree, &wdiag).points
                 + if seq1.as_bytes()[i - 1] == seq2.as_bytes()[j - 1] { match_score }
@@ -72,15 +72,15 @@ pub fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i3
             let insert = get_from_map(&tree, &wleft).points + gap;
 
             if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
-                create_node(w, w - m1 - 1, match_mismatch_delta_points, &mut tree);
+                create_node(w, wdiag, match_mismatch_delta_points, &mut tree);
                 // L'elemento in diagonale ovviamente non è leaf ma per la versione con percorsi compressi ci serve comunque valutarla?
-                tree_prune(w - m1 - 1, &mut tree, &max_pos, &m1);
+                tree_prune(wdiag, &mut tree, &max_pos, &m1);
             } else if delete > insert { // * Preferiamo il movimento orizzontale!
-                create_node(w, w - m1, delete, &mut tree);
-                tree_prune(w - m1 - 1, &mut tree, &max_pos, &m1); // prune dell'elemento in diagonale
+                create_node(w, wup, delete, &mut tree);
+                tree_prune(wdiag, &mut tree, &max_pos, &m1); // prune dell'elemento in diagonale
             } else {
-                create_node(w, w - 1, insert, &mut tree);
-                tree_prune(w - m1 - 1, &mut tree, &max_pos, &m1); // prune dell'elemento in diagonale
+                create_node(w, wleft, insert, &mut tree);
+                tree_prune(wdiag, &mut tree, &max_pos, &m1); // prune dell'elemento in diagonale
             }
 
             // dp[1][j] = std::cmp::max(match_mismatch_delta_points, std::cmp::max(delete, std::cmp::max(insert, 0)));
