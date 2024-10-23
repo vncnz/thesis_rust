@@ -99,9 +99,6 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
     let m1 = m + 1;
     let n1 = n + 1;
 
-    // Inizializza la tabella DP. Si tratta delle due righe che nella versione py erano chiamate row_a e row_b
-    // let mut dp = vec![vec![0; m1]; 2];
-
     // Inizializza il punteggio massimo, la sua posizione, il relativo TreeNode
     let mut max_score = 0;
     // let mut max_node: TreeNode = TreeNode { pos: 0, parent: 0, children: [0,0,0], depth: 0};
@@ -121,11 +118,10 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
 
     // Inizializza la prima riga
     for i in 1..m1 {
-        let points = std::cmp::max(0, get_from_map(&tree, &(i-1)).points + gap);
+        let points = 0; // std::cmp::max(0, get_from_map(&tree, &(i-1)).points + gap);
         create_node(i, i - 1, points, &mut tree);
     }
 
-    // Riempie la tabella DP e traccia il punteggio massimo
     let mut ratio: f64 = 100.0;
     for j in 1..n1 {
         ratio = ((100 * tree.len() / (m1*j)) as f64).round();
