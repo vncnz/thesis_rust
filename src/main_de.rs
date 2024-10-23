@@ -4,9 +4,43 @@ use memory_stats::memory_stats;
 #[path = "common.rs"] mod common;
 use common::{create_node, get_from_map, nodes_relationship, print_alignment, print_hash_map, print_path_to_root_compressed, print_path_to_root_full, tree_prune, TreeNode};
 
-pub fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
+fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize, Vec<usize>>) {
+  let variants = HashMap::from([
+      ('W', vec!["TTT", "CC"])
+  ]);
+  let mut faked: String = String::new();
+  let mut dependences: HashMap<usize, Vec<usize>> = HashMap::new();
+  // let mut last = -1;
 
-    let m = seq1.len();
+  for c in seq.chars() {
+      match c {
+          'A' | 'C' | 'G' | 'T' => faked.push(c),
+          _ => {
+              let start = faked.len() - 1;
+              let mut derivates = Vec::new();
+              for i in 0..variants[&c].len() {
+                  faked.push_str(variants[&c][i]);
+                  derivates.push(faked.len() - 1);
+                  dependences.insert(faked.len() - 1, [start].to_vec());
+              }
+              let end = faked.len();
+              derivates.insert(0, start);
+              dependences.insert(end, derivates);
+              // println!("start: {}   end: {}   derivates: {:?}", start, end, derivates);
+          }
+      };
+  }
+  println!("dependences: {:?}", dependences);
+  (faked, dependences)
+}
+
+
+pub fn two_rows_alignment(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
+
+  let (seqq, dependences) = create_concatenated_alternatives_string(seq);
+  let seq2 = &seqq;
+
+  let m = seq1.len();
     let n = seq2.len();
     let m1 = m + 1;
     let n1 = n + 1;
@@ -120,5 +154,7 @@ pub fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i3
     }
     print_alignment(max_pos, &tree, seq1, seq2, m1);
 
-    (max_score, max_pos)
+  println!("{} -> {}, {:?}", seq, seq2, dependences);
+
+  (max_score, max_pos)
 }

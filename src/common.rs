@@ -10,7 +10,8 @@ pub struct TreeNode {
     pub(crate) pos: usize,
     pub(crate) parent: usize,
     pub(crate) children: Vec<usize>,
-    pub(crate) depth: u32
+    pub(crate) depth: u32,
+    pub(crate) points: i32
 }
 
 pub fn print_hash_map(map: &HashMap<usize, TreeNode>) {
@@ -64,7 +65,7 @@ pub fn nodes_relationship (current_node: usize, parent: usize, m1: usize) -> Rel
     r
 }
 
-pub fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>) {
+pub fn create_node(w: usize, parent: usize, points: i32, tree: &mut HashMap<usize, TreeNode>) {
     // println!("{}, child of {}", w, &parent);
     let p = tree.get_mut(&parent).unwrap();
     p.children.push(w);
@@ -72,7 +73,8 @@ pub fn create_node(w: usize, parent: usize, tree: &mut HashMap<usize, TreeNode>)
         pos: w,
         parent: parent,
         children: Vec::new(),
-        depth: p.depth + 1
+        depth: p.depth + 1,
+        points: points
     };
     tree.insert(n.pos, n);
 }
@@ -177,4 +179,46 @@ pub fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
 
     // Rimuoviamo il nodo corrente dall'albero
     tree.remove(&w);
+}
+
+pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize) {
+    let seq1v: Vec<char> = seq1.chars().collect();
+    let seq2v: Vec<char> = seq2.chars().collect();
+    let end_pos = (seq1v.len() + 1) * (seq2v.len() + 1) - 1;
+    // println!("end pos is {}", end_pos);
+    let mut a: String = "".to_owned();
+    let mut b: String = "".to_owned();
+    // let mut cnode = &map[&max_points_pos];
+    let mut cnode = &TreeNode { pos: end_pos, parent: max_points_pos, children: [].to_vec(), depth: 0, points: 0 };
+    if end_pos == max_points_pos {
+        cnode = get_from_map(map, &end_pos);
+    }
+    // println!("print_alignment {:?}", cnode);
+    while cnode.parent != cnode.pos {
+        // println!("print_alignment {:?}", cnode);
+        let mut p = cnode.pos;
+        while p > cnode.parent {
+            let r = nodes_relationship(p, cnode.parent, m1);
+            assert!(r.v || r.h || r.d, "Wrong relationship between {} and {}", p, cnode.parent);
+            if r.v {
+                p = p - m1;
+                a.insert(0, '-');
+                b.insert(0, seq2v[(p / m1) as usize]);
+            }
+            else if r.h {
+                p = p - 1;
+                a.insert(0, seq1v[p % m1]);
+                b.insert(0, '-');
+            }
+            else if r.d {
+                p = p - m1 - 1;
+                a.insert(0, seq1v[p % m1]);
+                b.insert(0, seq2v[(p / m1) as usize]);
+            }
+        }
+        cnode = get_from_map(map, &cnode.parent); // &map[&cnode.parent];
+        println!("{:?}", &cnode);
+    }
+    println!("{}", a);
+    println!("{}", b);
 }
