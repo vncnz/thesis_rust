@@ -11,9 +11,6 @@ pub fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i3
     let m1 = m + 1;
     let n1 = n + 1;
 
-    // Inizializza la tabella DP. Si tratta delle due righe che nella versione py erano chiamate row_a e row_b
-    // let mut dp = vec![vec![0; m1]; 2];
-
     // Inizializza il punteggio massimo, la sua posizione, il relativo TreeNode
     let mut max_score = 0;
     // let mut max_node: TreeNode = TreeNode { pos: 0, parent: 0, children: [0,0,0], depth: 0};
@@ -33,13 +30,13 @@ pub fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i3
 
     // Inizializza la prima riga
     for i in 1..m1 {
-        let points = std::cmp::max(0, get_from_map(&tree, &(i-1)).points + gap);
+        let points = 0; // std::cmp::max(0, get_from_map(&tree, &(i-1)).points + gap);
         create_node(i, i - 1, points, &mut tree);
     }
 
-    // Riempie la tabella DP e traccia il punteggio massimo
     let mut ratio: f64 = 100.0;
     for j in 1..n1 {
+
         ratio = ((100 * tree.len() / (m1*j)) as f64).round();
         if j % std::cmp::max(1 as usize, (n/20) as usize) == 0 {
             println!("\nRow j={} tree is {}%", j, ratio);
@@ -51,6 +48,7 @@ pub fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i3
                 println!("Couldn't get the current memory usage :(");
             }
         }
+
         let points = std::cmp::max(0, get_from_map(&tree, &(j*m1 - m1)).points + gap);
         create_node(j*m1, (j - 1)*m1, points, &mut tree);
         if j > 1 {
@@ -73,7 +71,7 @@ pub fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i3
 
             if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
                 create_node(w, wdiag, match_mismatch_delta_points, &mut tree);
-                // L'elemento in diagonale ovviamente non è leaf ma per la versione con percorsi compressi ci serve comunque valutarla?
+                // L'elemento in diagonale ovviamente non è leaf ma per la versione con percorsi compressi ci serve comunque valutarla!
                 tree_prune(wdiag, &mut tree, &max_pos, &m1);
             } else if delete > insert { // * Preferiamo il movimento orizzontale!
                 create_node(w, wup, delete, &mut tree);
