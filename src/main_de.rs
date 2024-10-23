@@ -37,10 +37,10 @@ fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize
 
 pub fn two_rows_alignment(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
 
-  let (seqq, dependences) = create_concatenated_alternatives_string(seq);
-  let seq2 = &seqq;
+    let (seqq, dependences) = create_concatenated_alternatives_string(seq);
+    let seq2 = &seqq;
 
-  let m = seq1.len();
+    let m = seq1.len();
     let n = seq2.len();
     let m1 = m + 1;
     let n1 = n + 1;
@@ -91,8 +91,27 @@ pub fn two_rows_alignment(seq1: &str, seq: &str, match_score: i32, mismatch: i32
             tree_prune((j-1)*m1 - 1, &mut tree, &max_pos, &m1); // qui prune dell'ultimo elemento della riga appena abbandonata
         }
 
+        let mut uprow = Vec::new();
+        if dependences.contains_key(&j) {
+            let deps = get_from_map(&dependences, &j);
+            println!("La riga {} è speciale: {:?}", j, deps);
+            match deps.len() {
+                1 => {
+                    uprow = (deps[0]*m1 .. (deps[0]+1)*m1).collect();
+                },
+                2 => {
+                    panic!("La riga {} è speciale ma ha due valori associati: {:?}", j, deps);
+                },
+                _ => {
+                    // TODO: scegliere valore per valore tra le righe disponibili in base allo score
+                    uprow = (deps[1]*m1 .. (deps[1]+1)*m1).collect();
+                }
+            }
+            println!("uprow indeces: {:?} with m1={}", uprow, m1);
+        }
         for i in 1..m1 {
             // if j == 27 { println!("\nRow i={}", i); }
+            
             let w: usize = j*m1 + i;
             let wdiag: usize = w - m1 - 1;
             let wup: usize = w - m1;
