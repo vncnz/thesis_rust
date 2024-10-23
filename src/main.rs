@@ -33,8 +33,8 @@ fn write_file (path: &str, data: &str) {
 
 fn main() {
 
-    // let (score, max_pos) = main_plain::two_rows_alignment(&X[0..], &Y[0..], 1, -1, -1);
-    let (score, max_pos) = main_de::two_rows_alignment(&X[0..], &Y[0..], 1, -1, -1);
+    // let (score, max_pos) = main_plain::build_tree(&X[0..], &Y[0..], 1, -1, -1);
+    let (score, max_pos) = main_de::build_tree(&X[0..], &Y[0..], 1, -1, -1);
 
     println!("Alignment Score: {}", score);
     println!("max_pos: {}", max_pos);

@@ -4,7 +4,7 @@ use memory_stats::memory_stats;
 #[path = "common.rs"] mod common;
 use common::{create_node, get_from_map, nodes_relationship, print_alignment, print_hash_map, print_path_to_root_compressed, print_path_to_root_full, tree_prune, TreeNode};
 
-pub fn two_rows_alignment(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
+pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
 
     let m = seq1.len();
     let n = seq2.len();

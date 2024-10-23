@@ -37,8 +37,7 @@ use common::{create_node, get_from_map, nodes_relationship, print_alignment, pri
 fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize, Vec<usize>>) {
     let mut faked: String = String::new();
     let mut dependences: HashMap<usize, Vec<usize>> = HashMap::new();
-  
-    let mut alternative: String = String::new();
+
     let mut building_alternative: u8 = 0;
     let mut start: usize = 0;
     let mut derivates = Vec::new();
@@ -90,7 +89,7 @@ fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize
   }
 
 
-pub fn two_rows_alignment(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
+pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
 
     let (seqq, dependences) = create_concatenated_alternatives_string(seq);
     let seq2 = &seqq;
