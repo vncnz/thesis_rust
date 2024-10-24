@@ -191,7 +191,7 @@ pub fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
     tree.remove(&w);
 }
 
-pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize) {
+pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) {
     let seq1v: Vec<char> = seq1.chars().collect();
     let seq2v: Vec<char> = seq2.chars().collect();
     let end_pos = (seq1v.len() + 1) * (seq2v.len() + 1) - 1;
@@ -210,8 +210,23 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
         while p > cnode.parent {
             let r = nodes_relationship(p, cnode.parent, m1);
             assert!(r.v || r.h || r.d, "Wrong relationship between {} and {}", p, cnode.parent);
+            let mut row_shift = 1;
+            let j = p / m1;
+            if dependences.contains_key(&j) {
+                let deps = get_from_map(&dependences, &j);
+                println!("La riga {} è speciale: {:?}", j, deps);
+                match deps.len() {
+                    1 => {
+                        row_shift = j-deps[0];
+                    },
+                    _ => {
+
+                        // row_shift = j-deps[deps.len() - 1];
+                    }
+                }
+            }
             if r.v {
-                p = p - m1;
+                p = p - m1*row_shift;
                 a.insert(0, '-');
                 b.insert(0, seq2v[(p / m1) as usize]);
             }
@@ -221,13 +236,13 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
                 b.insert(0, '-');
             }
             else if r.d {
-                p = p - m1 - 1;
+                p = p - m1*row_shift - 1;
                 a.insert(0, seq1v[p % m1]);
                 b.insert(0, seq2v[(p / m1) as usize]);
             }
         }
         cnode = get_from_map(map, &cnode.parent); // &map[&cnode.parent];
-        println!("{:?}", &cnode);
+        // println!("{:?}", &cnode);
     }
     println!("{}", a);
     println!("{}", b);

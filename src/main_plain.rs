@@ -114,7 +114,7 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
         println!("\nFull schema saved in memory too big to be printed, sorry");
         println!("\nPath from best score to root (w={})", max_pos);
     }
-    print_alignment(max_pos, &tree, seq1, seq2, m1);
+    print_alignment(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
 
     (max_score, max_pos)
 }

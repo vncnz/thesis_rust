@@ -134,7 +134,7 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
     for j in 1..n1 {
         ratio = ((100 * tree.len() / (m1*j)) as f64).round();
         if j % std::cmp::max(1 as usize, (n/20) as usize) == 0 {
-            println!("\nRow j={} tree is {}%", j, ratio);
+            println!("\nRow j={} ({}) tree is {}%", j, seq2.as_bytes()[j - 1] as char, ratio);
 
             if let Some(usage) = memory_stats() {
                 println!("Current physical memory usage: {}", usage.physical_mem);
@@ -167,14 +167,14 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
                     println!("Riga con più dipendenze: {:?}", deps);
                     uprow.clear();
                     for i in 0..m1 {
-                        let mut max = deps[1];
+                        let mut max = 1;
                         for d in 2..deps.len() {
-                            // println!("Comparing {} ({}) with {} ({})", deps[d]*m1 + i, get_from_map(&tree, &(deps[d]*m1 + i)).points, max*m1 + i, get_from_map(&tree, &(max*m1 + i)).points);
-                            if get_from_map(&tree, &(deps[d]*m1 + i)).points > get_from_map(&tree, &(max*m1 + i)).points {
+                            println!("Comparing {} ({}) with {} ({})", deps[d]*m1 + i, get_from_map(&tree, &(deps[d]*m1 + i)).points, deps[max]*m1 + i, get_from_map(&tree, &(deps[max]*m1 + i)).points);
+                            if get_from_map(&tree, &(deps[d]*m1 + i)).points > get_from_map(&tree, &(deps[max]*m1 + i)).points {
                                 max = d;
                             }
                         }
-                        uprow.push(max*m1 + i);
+                        uprow.push(deps[max]*m1 + i);
                     }
                     // uprow = (deps[1]*m1 .. (deps[1]+1)*m1).collect();
                 }
@@ -257,7 +257,8 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
         println!("\nFull schema saved in memory too big to be printed, sorry");
         println!("\nPath from best score to root (w={})", max_pos);
     }
-    print_alignment(max_pos, &tree, seq1, seq2, m1);
+
+    print_alignment(max_pos, &tree, seq1, seq2, m1, &dependences);
 
   println!("{} -> {}, {:?}", seq, seq2, dependences);
 

@@ -57,7 +57,7 @@ fn main() {
 // static Y: &str = "ACCTTCGGGCCAGTCATATTTCA";
 
 // example 6 - de-strings
-static X: &str = "AAATTAAAA";
+static X: &str = "AAACCAAAA";
 static Y: &str = "AAA[TTT|CC]AAAA";
 
 // example BIG
