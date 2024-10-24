@@ -217,6 +217,7 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
             max_pos = last_idx;
         }
 
+        // * Eventually clean all rows previously blocked by split/merge hops
         if dependences.contains_key(&j) {
             let deps = get_from_map(&dependences, &j);
             if deps.len() > 2 {
@@ -226,14 +227,14 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
                 }
                 // This is a closing-alternative node, we can clean up all the previously blocked rows!
                 for d in deps {
-                    for i in 0..m1 {
+                    for i in 0..(m1-1) {
                         let w = d*m1 + i;
                         tree_prune(w, &mut tree, &max_pos, &m1, &lines_to_keep);
                     }
                 }
             }
         }
-        if j == 7 { print_hash_map(&tree); }
+        // if j == 7 { print_hash_map(&tree); }
 
         // if j < 10 { print_hash_map(&tree); }
 
