@@ -52,7 +52,7 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
         let points = std::cmp::max(0, get_from_map(&tree, &(j*m1 - m1)).points + gap);
         create_node(j*m1, (j - 1)*m1, points, &mut tree);
         if j > 1 {
-            tree_prune((j-1)*m1 - 1, &mut tree, &max_pos, &m1); // qui prune dell'ultimo elemento della riga appena abbandonata
+            tree_prune((j-1)*m1 - 1, &mut tree, &max_pos, &m1, &Vec::new()); // qui prune dell'ultimo elemento della riga appena abbandonata
         }
 
         for i in 1..m1 {
@@ -72,14 +72,12 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
             if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
                 create_node(w, wdiag, match_mismatch_delta_points, &mut tree);
                 // L'elemento in diagonale ovviamente non è leaf ma per la versione con percorsi compressi ci serve comunque valutarla!
-                tree_prune(wdiag, &mut tree, &max_pos, &m1);
             } else if delete > insert { // * Preferiamo il movimento orizzontale!
                 create_node(w, wup, delete, &mut tree);
-                tree_prune(wdiag, &mut tree, &max_pos, &m1); // prune dell'elemento in diagonale
             } else {
                 create_node(w, wleft, insert, &mut tree);
-                tree_prune(wdiag, &mut tree, &max_pos, &m1); // prune dell'elemento in diagonale
             }
+            tree_prune(wdiag, &mut tree, &max_pos, &m1, &Vec::new()); // prune dell'elemento in diagonale
 
             // dp[1][j] = std::cmp::max(match_mismatch_delta_points, std::cmp::max(delete, std::cmp::max(insert, 0)));
 
@@ -88,7 +86,7 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
         let last_idx = j*m1 + m1 - 1;
         let last_node_points = get_from_map(&tree, &last_idx).points;
         if last_node_points > max_score {
-            if max_pos > 0 && max_pos < (j-1)*m1 - 1 { tree_prune(max_pos, &mut tree, &((j+1)*m1 -1), &m1); }
+            if max_pos > 0 && max_pos < (j-1)*m1 - 1 { tree_prune(max_pos, &mut tree, &((j+1)*m1 -1), &m1, &Vec::new()); }
             // Occhio ad eliminarlo solo se non ha figli, tree_node al momento non fa questo controllo
             max_score = last_node_points;
             max_pos = last_idx;

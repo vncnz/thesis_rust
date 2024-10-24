@@ -79,15 +79,16 @@ pub fn create_node(w: usize, parent: usize, points: i32, tree: &mut HashMap<usiz
     tree.insert(n.pos, n);
 }
 
-pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, m1: &usize) {
+pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, m1: &usize, lines_to_keep: &Vec<usize>) {
     let mut current_node: usize = w;
     let mut children_num: usize = 100;
+    let mut row = &current_node / m1;
 
     // println!("tree_prune on {}", w);
 
-    while current_node != *protected {
+    while current_node != *protected && !lines_to_keep.contains(&row) {
         let parent_id;
-        
+
         // Primo riferimento mutabile: recuperiamo il nodo corrente
         {
             let n: &mut TreeNode = get_mut_from_map(tree, &current_node); // tree.get_mut(&current_node).expect(&format!("Key not found in tree: {}", current_node));
@@ -118,13 +119,21 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
 
             // Rimuoviamo il nodo corrente dall'albero
             tree.remove(&current_node);
+            println!("Elimino elemento {}", &current_node);
         }
 
         // Se il genitore non ha più figli, proseguiamo potando il genitore
         current_node = parent_id;
+        row = current_node / m1;
+
         if children_num > 0 {
             break;
         }
+    }
+
+    if lines_to_keep.contains(&row) {
+        println!("Don't delete {}, This line needs to be kept: {} {:?}", current_node, &row, &lines_to_keep);
+        return;
     }
 
     if current_node != *protected && children_num == 1 && current_node != 0 {
@@ -152,6 +161,8 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
 }
 
 pub fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
+
+    println!("Skipping node {}", &w);
 
     let w0: usize;
     let w2: usize;
