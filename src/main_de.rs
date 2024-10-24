@@ -52,6 +52,7 @@ fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize
                 }
                 building_alternative = 1;
                 start = faked.len() - 1;
+                dependences.insert(faked.len(), [start].to_vec());
             },
             ']' => {
                 if building_alternative == 0 {
@@ -59,10 +60,9 @@ fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize
                 } else if building_alternative == 1 {
                     panic!("Closing a fake alternative, at least an OR is mandatory!");
                 }
-                derivates.push(faked.len() - 1);
-                dependences.insert(faked.len() - 1, [start].to_vec());
 
                 let end = faked.len();
+                derivates.push(faked.len() - 1);
                 derivates.insert(0, start);
                 dependences.insert(end, derivates);
                 derivates = Vec::new();
@@ -73,7 +73,7 @@ fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize
                     panic!("Alternative never opened!");
                 }
                 derivates.push(faked.len() - 1);
-                dependences.insert(faked.len() - 1, [start].to_vec());
+                dependences.insert(faked.len(), [start].to_vec());
                 building_alternative = 2;
             },
             _ => {
@@ -141,12 +141,13 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
             tree_prune((j-1)*m1 - 1, &mut tree, &max_pos, &m1); // qui prune dell'ultimo elemento della riga appena abbandonata
         }
 
-        let mut uprow: Vec<usize> = (j*m1 .. (j+1)*m1).collect();
+        let mut uprow: Vec<usize> = ((j-1)*m1 .. j*m1).collect();
         if dependences.contains_key(&j) {
             let deps = get_from_map(&dependences, &j);
             println!("La riga {} è speciale: {:?}", j, deps);
             match deps.len() {
                 1 => {
+                    println!("Riga con una dipendenza unica: {}", deps[0]);
                     uprow = (deps[0]*m1 .. (deps[0]+1)*m1).collect();
                 },
                 2 => {
@@ -154,7 +155,20 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
                 },
                 _ => {
                     // TODO: scegliere valore per valore tra le righe disponibili in base allo score
-                    uprow = (deps[1]*m1 .. (deps[1]+1)*m1).collect();
+                    // * In questo caso il formato è [start, variant1, ..., variantN]
+                    println!("Riga con più dipendenze: {:?}", deps);
+                    uprow.clear();
+                    for i in 0..m1 {
+                        let mut max = deps[1];
+                        for d in 2..deps.len() {
+                            // println!("Comparing {} ({}) with {} ({})", deps[d]*m1 + i, get_from_map(&tree, &(deps[d]*m1 + i)).points, max*m1 + i, get_from_map(&tree, &(max*m1 + i)).points);
+                            if get_from_map(&tree, &(deps[d]*m1 + i)).points > get_from_map(&tree, &(max*m1 + i)).points {
+                                max = d;
+                            }
+                        }
+                        uprow.push(max*m1 + i);
+                    }
+                    // uprow = (deps[1]*m1 .. (deps[1]+1)*m1).collect();
                 }
             }
             println!("uprow indeces: {:?} with m1={}", uprow, m1);
@@ -171,6 +185,7 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
                 + if seq1.as_bytes()[i - 1] == seq2.as_bytes()[j - 1] { match_score }
                   else { mismatch };
 
+            // println!("w={}, wleft={}, wdiag={}, wtop={}", &w, &wleft, &wdiag, &wup);
             let delete = get_from_map(&tree, &wup).points + gap;
             let insert = get_from_map(&tree, &wleft).points + gap;
 
