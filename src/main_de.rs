@@ -99,6 +99,14 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
     let m1 = m + 1;
     let n1 = n + 1;
 
+    let mut lines_to_keep: Vec<usize> = Vec::new();
+    for dep in dependences.values() {
+        for d in dep {
+            if !lines_to_keep.contains(d) { lines_to_keep.push(*d); }
+            println!("lines_to_keep: {:?}", &lines_to_keep);
+        }
+    }
+
     // Inizializza il punteggio massimo, la sua posizione, il relativo TreeNode
     let mut max_score = 0;
     // let mut max_node: TreeNode = TreeNode { pos: 0, parent: 0, children: [0,0,0], depth: 0};
@@ -138,7 +146,7 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
         let points = std::cmp::max(0, get_from_map(&tree, &(j*m1 - m1)).points + gap);
         create_node(j*m1, (j - 1)*m1, points, &mut tree);
         if j > 1 {
-            tree_prune((j-1)*m1 - 1, &mut tree, &max_pos, &m1); // qui prune dell'ultimo elemento della riga appena abbandonata
+            tree_prune((j-1)*m1 - 1, &mut tree, &max_pos, &m1, &lines_to_keep); // qui prune dell'ultimo elemento della riga appena abbandonata
         }
 
         let mut uprow: Vec<usize> = ((j-1)*m1 .. j*m1).collect();
@@ -149,12 +157,12 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
                 1 => {
                     println!("Riga con una dipendenza unica: {}", deps[0]);
                     uprow = (deps[0]*m1 .. (deps[0]+1)*m1).collect();
+                    println!("lines_to_keep: {:?}", &lines_to_keep);
                 },
                 2 => {
                     panic!("La riga {} è speciale ma ha due valori associati: {:?}", j, deps);
                 },
                 _ => {
-                    // TODO: scegliere valore per valore tra le righe disponibili in base allo score
                     // * In questo caso il formato è [start, variant1, ..., variantN]
                     println!("Riga con più dipendenze: {:?}", deps);
                     uprow.clear();
@@ -197,13 +205,13 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
             } else {
                 create_node(w, wleft, insert, &mut tree);
             }
-            tree_prune(wdiag, &mut tree, &max_pos, &m1);
+            tree_prune(wdiag, &mut tree, &max_pos, &m1, &lines_to_keep);
         }
 
         let last_idx = j*m1 + m1 - 1;
         let last_node_points = get_from_map(&tree, &last_idx).points;
         if last_node_points > max_score {
-            if max_pos > 0 && max_pos < (j-1)*m1 - 1 { tree_prune(max_pos, &mut tree, &((j+1)*m1 -1), &m1); }
+            if max_pos > 0 && max_pos < (j-1)*m1 - 1 { tree_prune(max_pos, &mut tree, &((j+1)*m1 -1), &m1, &lines_to_keep); }
             // Occhio ad eliminarlo solo se non ha figli, tree_node al momento non fa questo controllo
             max_score = last_node_points;
             max_pos = last_idx;
