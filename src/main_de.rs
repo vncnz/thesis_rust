@@ -216,7 +216,24 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
             max_score = last_node_points;
             max_pos = last_idx;
         }
-        // if j < 8 { print_hash_map(&tree); }
+
+        if dependences.contains_key(&j) {
+            let deps = get_from_map(&dependences, &j);
+            if deps.len() > 2 {
+                for d in deps {
+                    println!("                         removing {} from lines_to_keep {:?}", &d, &lines_to_keep);
+                    lines_to_keep.retain(|&x| x != *d);
+                }
+                // This is a closing-alternative node, we can clean up all the previously blocked rows!
+                for d in deps {
+                    for i in 0..m1 {
+                        let w = d*m1 + i;
+                        tree_prune(w, &mut tree, &max_pos, &m1, &lines_to_keep);
+                    }
+                }
+            }
+        }
+        if j == 7 { print_hash_map(&tree); }
 
         // if j < 10 { print_hash_map(&tree); }
 
