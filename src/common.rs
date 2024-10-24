@@ -119,7 +119,7 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
 
             // Rimuoviamo il nodo corrente dall'albero
             tree.remove(&current_node);
-            println!("Elimino elemento {}", &current_node);
+            // println!("Elimino elemento {}", &current_node);
         }
 
         // Se il genitore non ha più figli, proseguiamo potando il genitore
@@ -132,7 +132,7 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
     }
 
     if lines_to_keep.contains(&row) {
-        println!("Don't delete {}, This line needs to be kept: {} {:?}", current_node, &row, &lines_to_keep);
+        // println!("Don't delete {}, This line needs to be kept: {} {:?}", current_node, &row, &lines_to_keep);
         return;
     }
 
@@ -162,7 +162,7 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
 
 pub fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
 
-    println!("Skipping node {}", &w);
+    // println!("Skipping node {}", &w);
 
     let w0: usize;
     let w2: usize;
