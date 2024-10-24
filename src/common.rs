@@ -80,7 +80,6 @@ pub fn create_node(w: usize, parent: usize, points: i32, tree: &mut HashMap<usiz
 }
 
 pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, m1: &usize) {
-    return; // ! Remove me!
     let mut current_node: usize = w;
     let mut children_num: usize = 100;
 
