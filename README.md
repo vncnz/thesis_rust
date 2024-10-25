@@ -14,7 +14,7 @@ Install https://code.visualstudio.com/docs/languages/rust
 - [x] Fix print_alignment if last part is equal
 - [x] Edit DE syntax in order to use […/…] for alternatives
 - [x] Ragionare bene sulla gestione del pruning nel caso de: sia quando fermarlo sia su che elemento di partenza usare nel caso di salto righe
-- [ ] Update print_alignment in order to use hops when necessary - Evaluate if don't skip nodes in last row of alternative
+- [x] Update print_alignment in order to use hops when necessary - Evaluate if don't skip nodes in last row of alternative
 - [ ] Check to use max_value if it is in last line, too
 - [ ] Create a "drawer" in Python for thesis images
 - [ ] Extensive tests on what I did until now
