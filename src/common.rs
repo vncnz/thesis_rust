@@ -261,17 +261,27 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
         cnode = get_from_map(map, &end_pos);
     }
 
-    let mut hmov = cnode.pos / m1 == cnode.parent / m1;
-    let mut vmov = cnode.pos % m1 == cnode.parent % m1;
+    let mut hmov = cnode.pos % m1 != cnode.parent % m1;
+    let mut vmov = cnode.pos / m1 != cnode.parent / m1;
     let mut p = cnode.pos;
     let mut parent = cnode.parent;
 
     let mut ssafe = seq1.len() * seq2.len() + 3;
     while ssafe > 0 && p > 0 {
-        // println!("ssafe={} p={} hmov={} vmov={}", &ssafe, &p, &hmov, &vmov);
+        println!("ssafe={} p={} hmov={} vmov={}", &ssafe, &p, &hmov, &vmov);
         ssafe -= 1;
 
-        if vmov  { p = p - m1; }
+        if vmov  {
+            let mut rows = 1;
+            let row_number = cnode.pos / m1;
+            if dependences.contains_key(&row_number) {
+                let l = get_from_map(&dependences, &row_number);
+                if l.len() == 1 {
+                    rows = row_number - l[0];
+                }
+            }
+            p = p - m1*rows;
+        }
         if hmov { p = p - 1; }
 
         if vmov { b.insert(0, seq2v[(p / m1) as usize]); }
@@ -283,7 +293,7 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
         if &p == &parent {
             cnode = get_from_map(map, &p);
             parent = cnode.parent;
-            // println!("p={} parent={} node={:?}", &p, &parent, &cnode);
+            println!("p={} parent={} node={:?}", &p, &parent, &cnode);
             hmov = p % m1 != parent % m1;
             vmov = p / m1 != parent / m1;
         }
