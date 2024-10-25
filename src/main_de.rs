@@ -52,7 +52,7 @@ fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize
                 }
                 building_alternative = 1;
                 start = faked.len() - 1;
-                dependences.insert(faked.len(), [start].to_vec());
+                dependences.insert(faked.len() + 1, [start + 1].to_vec());
             },
             ']' => {
                 if building_alternative == 0 {
@@ -61,9 +61,9 @@ fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize
                     panic!("Closing a fake alternative, at least an OR is mandatory!");
                 }
 
-                let end = faked.len();
-                derivates.push(faked.len() - 1);
-                derivates.insert(0, start);
+                let end = faked.len() + 1;
+                derivates.push(faked.len());
+                derivates.insert(0, start + 1);
                 dependences.insert(end, derivates);
                 derivates = Vec::new();
                 building_alternative = 0;
@@ -72,8 +72,8 @@ fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize
                 if building_alternative == 0 {
                     panic!("Alternative never opened!");
                 }
-                derivates.push(faked.len() - 1);
-                dependences.insert(faked.len(), [start].to_vec());
+                derivates.push(faked.len());
+                dependences.insert(faked.len() + 1, [start + 1].to_vec());
                 building_alternative = 2;
             },
             _ => {
@@ -235,9 +235,6 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
             }
         }
         // if j == 7 { print_hash_map(&tree); }
-
-        // if j < 10 { print_hash_map(&tree); }
-
     }
 
     println!("Matrix size {} x {} = {}", m1, n1, m1*n1);
