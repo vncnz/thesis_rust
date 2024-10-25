@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use memory_stats::memory_stats;
 
 #[path = "common.rs"] mod common;
-use common::{create_node, get_from_map, nodes_relationship, print_alignment, print_hash_map, print_path_to_root_compressed, print_path_to_root_full, tree_prune, TreeNode};
+use common::{create_node, get_from_map, print_alignment, print_hash_map, print_path_to_root_compressed, print_path_to_root_full, tree_prune, TreeNode};
 
 /* fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize, Vec<usize>>) {
   let variants = HashMap::from([
