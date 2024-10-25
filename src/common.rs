@@ -79,7 +79,7 @@ pub fn create_node(w: usize, parent: usize, points: i32, tree: &mut HashMap<usiz
     tree.insert(n.pos, n);
 }
 
-pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, m1: &usize, lines_to_keep: &Vec<usize>) {
+pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, m1: &usize, lines_to_keep: &Vec<usize>, dont_skip: &Vec<usize>) {
     let mut current_node: usize = w;
     let mut children_num: usize = 100;
     let mut row = &current_node / m1;
@@ -147,12 +147,12 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
         let up = vmov0 == 0 && vmov1 == 0;
         if diag || left || up {
             // println!("Exited on {} and I can skip it (diag [to be extended]) {:?}", current_node, n);
-            skip_node(current_node, tree);
+            if !dont_skip.contains(&(w / m1)) { skip_node(current_node, tree); }
         } else if TREE_MODE {
             // println!("Exited on {} and I can work on this node to skip it?", current_node);
             //* In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
             // La possiamo chiamare "tree mode"
-            skip_node(current_node, tree);
+            if !dont_skip.contains(&(w / m1)) { skip_node(current_node, tree); }
         }
     } // Questo abilita la "nuova versione"
 }
@@ -268,26 +268,14 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
 
     let mut ssafe = seq1.len() * seq2.len() + 3;
     while ssafe > 0 && p > 0 {
-        println!("ssafe={} p={} hmov={} vmov={}", &ssafe, &p, &hmov, &vmov);
+        println!("   ssafe={} p={} hmov={} vmov={} x={} y={}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1);
         ssafe -= 1;
 
-        if vmov  {
-            let mut rows = 1;
-            let row_number = cnode.pos / m1;
-            if dependences.contains_key(&row_number) {
-                let l = get_from_map(&dependences, &row_number);
-                if l.len() == 1 {
-                    rows = row_number - l[0];
-                }
-            }
-            p = p - m1*rows;
-        }
-        if hmov { p = p - 1; }
-
-        if vmov { b.insert(0, seq2v[(p / m1) as usize]); }
+        println!("Inserting x={} ({}) y={} ({})", p%m1, seq1v[p%m1 -1], p/m1, seq2v[p/m1 -1]);
+        if vmov { b.insert(0, seq2v[(p / m1 -1) as usize]); }
         else { b.insert(0, '-'); }
 
-        if hmov { a.insert(0, seq1v[p % m1]); }
+        if hmov { a.insert(0, seq1v[p % m1 -1]); }
         else { a.insert(0, '-'); }
 
         if &p == &parent {
@@ -296,6 +284,20 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
             println!("p={} parent={} node={:?}", &p, &parent, &cnode);
             hmov = p % m1 != parent % m1;
             vmov = p / m1 != parent / m1;
+        }
+
+        let row_number = cnode.pos / m1;
+        if vmov  { p = p - m1; }
+        if hmov { p = p - 1; }
+        if dependences.contains_key(&row_number) {
+            let v = get_from_map(&dependences, &row_number);
+            if v.len() == 1 {
+                let oldp = p;
+                p = (get_from_map(&dependences, &row_number)[0]* m1) + (p % m1);
+                println!("Teleporting p from {} to {}", oldp, p);
+            } else {
+                p = cnode.parent; // * In fase di costruzione albero mi garantisco la presenza di un nodo nell'ultima riga dell'alternativa scelta
+            }
         }
     }
 
