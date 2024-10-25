@@ -2,6 +2,7 @@ use std::collections::HashMap;
 // use std::fs;
 // use serde_json;
 use itertools::Itertools;
+use colored::*;
 
 static TREE_MODE: bool = false;
 
@@ -147,12 +148,12 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
         let up = vmov0 == 0 && vmov1 == 0;
         if diag || left || up {
             // println!("Exited on {} and I can skip it (diag [to be extended]) {:?}", current_node, n);
-            if !dont_skip.contains(&(w / m1)) { skip_node(current_node, tree); }
+            if !dont_skip.contains(&(current_node / m1)) { skip_node(current_node, tree); }
         } else if TREE_MODE {
             // println!("Exited on {} and I can work on this node to skip it?", current_node);
             //* In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
             // La possiamo chiamare "tree mode"
-            if !dont_skip.contains(&(w / m1)) { skip_node(current_node, tree); }
+            if !dont_skip.contains(&(current_node / m1)) { skip_node(current_node, tree); }
         }
     } // Questo abilita la "nuova versione"
 }
@@ -268,7 +269,7 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
 
     let mut ssafe = seq1.len() * seq2.len() + 3;
     while ssafe > 0 && p > 0 {
-        println!("   ssafe={} p={} hmov={} vmov={} x={} y={}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1);
+        println!("\n   ssafe={} p={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1, &cnode);
         ssafe -= 1;
 
         println!("Inserting x={} ({}) y={} ({})", p%m1, seq1v[p%m1 -1], p/m1, seq2v[p/m1 -1]);
@@ -281,30 +282,38 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
         if &p == &parent {
             cnode = get_from_map(map, &p);
             parent = cnode.parent;
-            println!("p={} parent={} node={:?}", &p, &parent, &cnode);
+            // println!("p={} parent={} node={:?}", &p, &parent, &cnode);
             hmov = p % m1 != parent % m1;
             vmov = p / m1 != parent / m1;
         }
 
-        let row_number = cnode.pos / m1;
-        if vmov  { p = p - m1; }
-        if hmov { p = p - 1; }
-        if dependences.contains_key(&row_number) {
-            let v = get_from_map(&dependences, &row_number);
+        let row_number = p / m1;
+        
+        if dependences.contains_key(&(row_number)) { // && get_from_map(&dependences, &row_number).len() == 1 {
+            /* let v = get_from_map(&dependences, &row_number);
             if v.len() == 1 {
                 let oldp = p;
                 p = (get_from_map(&dependences, &row_number)[0]* m1) + (p % m1);
                 println!("Teleporting p from {} to {}", oldp, p);
             } else {
                 p = cnode.parent; // * In fase di costruzione albero mi garantisco la presenza di un nodo nell'ultima riga dell'alternativa scelta
-            }
+            } */
+            p = cnode.parent; // * In fase di costruzione albero mi garantisco la presenza di un nodo nell'ultima riga dell'alternativa scelta
+            println!("{} for row_number {} {:?}", "Using parent".yellow(), &row_number, &dependences);
+        } else {
+            println!("{}", "NOT using parent".cyan());
+            if vmov  { p = p - m1; }
+            if hmov { p = p - 1; }
         }
+        println!("{}", a);
+        println!("{}", b);
     }
 
     if ssafe == 0 {
-        panic!("Infinite cycle detected in alignment recostruction");
+        panic!("{}", "Infinite cycle detected in alignment recostruction".red().bold());
     }
 
+    println!("\n\n{}", "Alignment completed".green());
     println!("{}", a);
     println!("{}", b);
 }

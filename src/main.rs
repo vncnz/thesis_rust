@@ -37,7 +37,7 @@ fn main() {
     let (score, max_pos) = main_de::build_tree(&X[0..], &Y[0..], 1, -1, -1);
 
     println!("Alignment Score: {}", score);
-    println!("max_pos: {}", max_pos);
+    // println!("max_pos: {}", max_pos);
 }
 
 // example 0

@@ -257,9 +257,9 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
         println!("\nPath from best score to root (w={})", max_pos);
     }
 
+    println!("{} -> {} with dependences={:?} and dont_delete={:?}", seq, seq2, dependences, dont_skip);
+
     print_alignment(max_pos, &tree, seq1, seq2, m1, &dependences);
 
-  println!("{} -> {}, {:?}", seq, seq2, dependences);
-
-  (max_score, max_pos)
+    (max_score, max_pos)
 }
