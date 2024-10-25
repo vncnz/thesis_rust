@@ -269,10 +269,10 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
 
     let mut ssafe = seq1.len() * seq2.len() + 3;
     while ssafe > 0 && p > 0 {
-        println!("\n   ssafe={} p={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1, &cnode);
+        // println!("\n   ssafe={} p={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1, &cnode);
         ssafe -= 1;
 
-        println!("Inserting x={} ({}) y={} ({})", p%m1, seq1v[p%m1 -1], p/m1, seq2v[p/m1 -1]);
+        // println!("Inserting x={} ({}) y={} ({})", p%m1, seq1v[p%m1 -1], p/m1, seq2v[p/m1 -1]);
         if vmov { b.insert(0, seq2v[(p / m1 -1) as usize]); }
         else { b.insert(0, '-'); }
 
@@ -299,14 +299,14 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
                 p = cnode.parent; // * In fase di costruzione albero mi garantisco la presenza di un nodo nell'ultima riga dell'alternativa scelta
             } */
             p = cnode.parent; // * In fase di costruzione albero mi garantisco la presenza di un nodo nell'ultima riga dell'alternativa scelta
-            println!("{} for row_number {} {:?}", "Using parent".yellow(), &row_number, &dependences);
+            // println!("{} for row_number {} {:?}", "Using parent".yellow(), &row_number, &dependences);
         } else {
-            println!("{}", "NOT using parent".cyan());
+            // println!("{}", "NOT using parent".cyan());
             if vmov  { p = p - m1; }
             if hmov { p = p - 1; }
         }
-        println!("{}", a);
-        println!("{}", b);
+        // println!("{}", a);
+        // println!("{}", b);
     }
 
     if ssafe == 0 {
