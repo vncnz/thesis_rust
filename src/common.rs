@@ -142,14 +142,11 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
         let vmov1 = (n.children[0] % m1 - n.pos % m1) as i64;
         let hmov0 = (current_node / m1) as i64 - (n.parent / m1) as i64;
         let hmov1 = (n.children[0] / m1) as i64 - (n.pos / m1) as i64;
-        if hmov0 == vmov0 && hmov1 == vmov1 {
+        let diag = hmov0 == vmov0 && hmov1 == vmov1;
+        let left = hmov0 == 0 && hmov1 == 0;
+        let up = vmov0 == 0 && vmov1 == 0;
+        if diag || left || up {
             // println!("Exited on {} and I can skip it (diag [to be extended]) {:?}", current_node, n);
-            skip_node(current_node, tree);
-        } else if hmov0 == 0 && hmov1 == 0 {
-            // println!("Exited on {} and I can skip it (horizontal) {:?}", current_node, n);
-            skip_node(current_node, tree);
-        } else if vmov0 == 0 && vmov1 == 0 {
-            // println!("Exited on {} and I can skip it (vertical) {:?}", current_node, n);
             skip_node(current_node, tree);
         } else if TREE_MODE {
             // println!("Exited on {} and I can work on this node to skip it?", current_node);
@@ -161,7 +158,7 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
 }
 
 pub fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
-
+    // return;
     // println!("Skipping node {}", &w);
 
     let w0: usize;
