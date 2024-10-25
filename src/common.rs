@@ -188,7 +188,7 @@ pub fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
     tree.remove(&w);
 }
 
-pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) {
+pub fn print_alignment_DEPRECATED(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) {
     let seq1v: Vec<char> = seq1.chars().collect();
     let seq2v: Vec<char> = seq2.chars().collect();
     let end_pos = (seq1v.len() + 1) * (seq2v.len() + 1) - 1;
@@ -205,8 +205,11 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
         // println!("print_alignment {:?}", cnode);
         let mut p = cnode.pos;
         while p > cnode.parent {
+            // let diff = &cnode.pos - &cnode.parent;
+            // let near = diff == m1 || diff == m1 - 1 || diff == 1;
             let r = nodes_relationship(p, cnode.parent, m1);
             assert!(r.v || r.h || r.d, "Wrong relationship between {} and {}", p, cnode.parent);
+
             let mut row_shift = 1;
             let j = p / m1;
             if dependences.contains_key(&j) {
@@ -241,6 +244,55 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
         cnode = get_from_map(map, &cnode.parent); // &map[&cnode.parent];
         // println!("{:?}", &cnode);
     }
+    println!("{}", a);
+    println!("{}", b);
+}
+
+pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) {
+    let seq1v: Vec<char> = seq1.chars().collect();
+    let seq2v: Vec<char> = seq2.chars().collect();
+    let end_pos = (seq1v.len() + 1) * (seq2v.len() + 1) - 1;
+    // println!("end pos is {}", end_pos);
+    let mut a: String = "".to_owned();
+    let mut b: String = "".to_owned();
+    // let mut cnode = &map[&max_points_pos];
+    let mut cnode = &TreeNode { pos: end_pos, parent: max_points_pos, children: [].to_vec(), depth: 0, points: 0 };
+    if end_pos == max_points_pos {
+        cnode = get_from_map(map, &end_pos);
+    }
+
+    let mut hmov = cnode.pos / m1 == cnode.parent / m1;
+    let mut vmov = cnode.pos % m1 == cnode.parent % m1;
+    let mut p = cnode.pos;
+    let mut parent = cnode.parent;
+
+    let mut ssafe = seq1.len() * seq2.len() + 3;
+    while ssafe > 0 && p > 0 {
+        // println!("ssafe={} p={} hmov={} vmov={}", &ssafe, &p, &hmov, &vmov);
+        ssafe -= 1;
+
+        if vmov  { p = p - m1; }
+        if hmov { p = p - 1; }
+
+        if vmov { b.insert(0, seq2v[(p / m1) as usize]); }
+        else { b.insert(0, '-'); }
+
+        if hmov { a.insert(0, seq1v[p % m1]); }
+        else { a.insert(0, '-'); }
+
+        if &p == &parent {
+            cnode = get_from_map(map, &p);
+            parent = cnode.parent;
+            // println!("p={} parent={} node={:?}", &p, &parent, &cnode);
+            hmov = p % m1 != parent % m1;
+            vmov = p / m1 != parent / m1;
+        }
+    }
+
+    if ssafe == 0 {
+        panic!("Infinite cycle detected in alignment recostruction");
+    }
+
     println!("{}", a);
     println!("{}", b);
 }
