@@ -3,10 +3,11 @@ use std::collections::HashMap;
 // use serde_json;
 use itertools::Itertools;
 use colored::*;
+use serde::{Deserialize, Serialize};
 
 static TREE_MODE: bool = false;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TreeNode {
     pub(crate) pos: usize,
     pub(crate) parent: usize,
@@ -269,10 +270,10 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
 
     let mut ssafe = seq1.len() * seq2.len() + 3;
     while ssafe > 0 && p > 0 {
-        println!("\n   ssafe={} p={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1, &cnode);
+        // println!("\n   ssafe={} p={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1, &cnode);
         ssafe -= 1;
 
-        println!("Indeces x={} ({}) y={} ({})", p%m1, seq1v[p%m1 -1], p/m1, seq2v[p/m1 -1]);
+        // println!("Indeces x={} ({}) y={} ({})", p%m1, seq1v[p%m1 -1], p/m1, seq2v[p/m1 -1]);
         if vmov { b.insert(0, seq2v[(p / m1 -1) as usize]); }
         else { b.insert(0, '-'); }
 
@@ -300,12 +301,12 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
         if &p == &parent {
             cnode = get_from_map(map, &p);
             parent = cnode.parent;
-            println!("p={} parent={} node={:?}", &p, &parent, &cnode);
+            // println!("p={} parent={} node={:?}", &p, &parent, &cnode);
             hmov = p % m1 != parent % m1;
             vmov = p / m1 != parent / m1;
         }
-        println!("{}", a);
-        println!("{}", b);
+        // println!("{}", a);
+        // println!("{}", b);
     }
 
     if ssafe == 0 {

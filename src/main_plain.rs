@@ -116,5 +116,7 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
     }
     print_alignment(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
 
+    println!("{:?}", serde_json::to_string(&tree).unwrap());
+
     (max_score, max_pos)
 }
