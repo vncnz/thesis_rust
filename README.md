@@ -16,7 +16,8 @@ Install https://code.visualstudio.com/docs/languages/rust
 - [x] Ragionare bene sulla gestione del pruning nel caso de: sia quando fermarlo sia su che elemento di partenza usare nel caso di salto righe
 - [x] Update print_alignment in order to use hops when necessary - Evaluate if don't skip nodes in last row of alternative
 - [ ] Check to use max_value if it is in last line, too
-- [ ] Create a "drawer" in Python for thesis images
+- [x] Create a "drawer" in Python for thesis images
+- [ ] Forse migliorabile: non è necessario memorizzare i nodi della diga precedente ad uno split?
 - [ ] Extensive tests on what I did until now
 - [ ] Fix the disalignment between max_memory statistics and the number of nodes reported (which is not the max but the last)
 - [ ] Update thesis wrt updates in code
