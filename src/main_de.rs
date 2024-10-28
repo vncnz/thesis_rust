@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use memory_stats::memory_stats;
+// use cli_clipboard;
 
 #[path = "common.rs"] mod common;
 use common::{create_node, get_from_map, print_alignment, print_hash_map, print_path_to_root_compressed, print_path_to_root_full, tree_prune, TreeNode};
@@ -275,6 +276,8 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
         "max_points": &max_score
     });
     println!("\n\n{:?}\n\n", serde_json::to_string(&for_drawer).unwrap());
+
+    // cli_clipboard::set_contents(serde_json::to_string(&for_drawer).unwrap().to_owned()).unwrap();
 
     (max_score, max_pos)
 }
