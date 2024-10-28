@@ -116,7 +116,16 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
     }
     print_alignment(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
 
-    println!("{:?}", serde_json::to_string(&tree).unwrap());
+    // println!("{:?}", serde_json::to_string(&tree).unwrap());
+
+    let for_drawer = serde_json::json!({
+        "dependences": [],
+        "tree": &tree,
+        "seq1": &seq1,
+        "seq2": &seq2,
+        "max_pos": &max_pos
+    });
+    println!("\n\n{:?}\n\n", serde_json::to_string(&for_drawer).unwrap());
 
     (max_score, max_pos)
 }
