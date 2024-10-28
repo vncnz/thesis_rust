@@ -223,9 +223,11 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
         if dependences.contains_key(&j) {
             let deps = get_from_map(&dependences, &j);
             if deps.len() > 2 {
+                dont_skip.retain(|&x| x != deps[0]);
+                println!("                         removed {} from dont_skip {:?}", &deps[0], &dont_skip);
                 for d in deps {
-                    println!("                         removing {} from lines_to_keep {:?}", &d, &lines_to_keep);
                     lines_to_keep.retain(|&x| x != *d);
+                    println!("                         removed {} from lines_to_keep {:?}", &d, &lines_to_keep);
                 }
                 // This is a closing-alternative node, we can clean up all the previously blocked rows!
                 for d in deps {
