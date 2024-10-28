@@ -123,7 +123,8 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
         "tree": &tree,
         "seq1": &seq1,
         "seq2": &seq2,
-        "max_pos": &max_pos
+        "max_pos": &max_pos,
+        "max_points": &max_score
     });
     println!("\n\n{:?}\n\n", serde_json::to_string(&for_drawer).unwrap());
 
