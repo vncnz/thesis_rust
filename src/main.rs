@@ -1,11 +1,5 @@
-use itertools::Itertools;
-
-
-
 mod main_plain;
 mod main_de;
-// use main_plain::two_rows_alignment;
-
 
 /* fn read_file (path: &str) {
     fs::read_to_string(path).expect("Unable to read file");
@@ -18,20 +12,6 @@ fn write_file (path: &str, data: &str) {
 } */
 
 // static VERBOSE_MODE: bool = false;
-
-/* fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>) {
-    println!("Pruning tree starting at {}", w);
-    let n = tree.get_mut(&w).unwrap();
-    if n.children.len() == 0 {
-        println!("Deleting a node {}", n.pos);
-        let p = tree.get_mut(&n.parent).unwrap();
-        if let Some(pos) = p.children.iter().position(|x| *x == n.pos) {
-            p.children.remove(pos);
-        }
-        tree.remove(&n.pos);
-        println!("Element {} dropped", n.pos);
-    }
-} */
 
 fn main() {
 
