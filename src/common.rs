@@ -52,6 +52,7 @@ pub fn get_mut_from_map<'a, K: Eq + std::hash::Hash + std::fmt::Debug, V>(map: &
     map.get_mut(key).expect(&format!("Key {:?} not found in map", key))
 }
 
+/*
 #[derive(Debug)]
 pub struct Relationship {
     pub(crate) d: bool,
@@ -65,7 +66,7 @@ pub fn nodes_relationship (current_node: usize, parent: usize, m1: usize) -> Rel
     let r = Relationship { d: hmov0 == vmov0, v: vmov0 == 0, h: hmov0 == 0 };
     // println!("Computing relation between {} and {} {:?}", current_node, parent, r);
     r
-}
+} */
 
 pub fn create_node(w: usize, parent: usize, points: i32, tree: &mut HashMap<usize, TreeNode>) {
     // println!("{}, child of {}", w, &parent);
@@ -190,6 +191,7 @@ pub fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
     tree.remove(&w);
 }
 
+/*
 pub fn print_alignment_DEPRECATED(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) {
     let seq1v: Vec<char> = seq1.chars().collect();
     let seq2v: Vec<char> = seq2.chars().collect();
@@ -249,6 +251,7 @@ pub fn print_alignment_DEPRECATED(max_points_pos: usize, map: &HashMap<usize, Tr
     println!("{}", a);
     println!("{}", b);
 }
+*/
 
 pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) {
     let seq1v: Vec<char> = seq1.chars().collect();
