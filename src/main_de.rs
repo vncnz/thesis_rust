@@ -87,7 +87,7 @@ fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize
     }
     println!("dependences: {:?}", dependences);
     (faked, dependences)
-  }
+}
 
 
 pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
@@ -135,6 +135,7 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
 
     let mut ratio: f64 = 100.0;
     for j in 1..n1 {
+
         ratio = ((100 * tree.len() / (m1*j)) as f64).round();
         if j % std::cmp::max(1 as usize, (n/20) as usize) == 0 {
             println!("\nRow j={} ({}) tree is {}%", j, seq2.as_bytes()[j - 1] as char, ratio);
@@ -146,6 +147,7 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
                 println!("Couldn't get the current memory usage :(");
             }
         }
+
         let points = std::cmp::max(0, get_from_map(&tree, &(j*m1 - m1)).points + gap);
         create_node(j*m1, (j - 1)*m1, points, &mut tree);
         if j > 1 {
