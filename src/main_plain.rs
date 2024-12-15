@@ -39,7 +39,7 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
 
         ratio = ((100 * tree.len() / (m1*j)) as f64).round();
         if j % std::cmp::max(1 as usize, (n/20) as usize) == 0 {
-            println!("\nRow j={} tree is {}%", j, ratio);
+            println!("\nRow j={} ({}) tree is {}%", j, seq2.as_bytes()[j - 1] as char, ratio);
 
             if let Some(usage) = memory_stats() {
                 println!("Current physical memory usage: {}", usage.physical_mem);
