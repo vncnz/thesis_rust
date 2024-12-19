@@ -82,6 +82,19 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
             // dp[1][j] = std::cmp::max(match_mismatch_delta_points, std::cmp::max(delete, std::cmp::max(insert, 0)));
 
             // Traccia il punteggio massimo e la sua posizione
+
+            if w == 81 || w == 82 {
+                let for_drawer = serde_json::json!({
+                    "dependences": [],
+                    "tree": &tree,
+                    "seq1": &seq1,
+                    "seq2": &seq2,
+                    "max_pos": &max_pos,
+                    "max_points": &max_score,
+                    "w": &w
+                });
+                println!("\n(Element {:?} computed)\n{:?}\n\n", w, serde_json::to_string(&for_drawer).unwrap());
+            }
         }
         let last_idx = j*m1 + m1 - 1;
         let last_node_points = get_from_map(&tree, &last_idx).points;
