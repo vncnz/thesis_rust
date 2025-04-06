@@ -172,3 +172,78 @@ Current virtual memory usage: 4755456
 Row j=23540 tree is 0%
 Current physical memory usage: 6209536
 Current virtual memory usage: 7327744
+
+
+
+
+
+
+==================================
+============== NOTE ==============
+==================================
+
+(1) Come si ricorderà, mi piacerebbe fare un articolo dalla sua tesi e sottometterlo a ICTCS 2025 (scadenza 15 giugno), vedi https://ictcs2025.unich.it. Penso che per quello, il contributo principale sarà l'algoritmo di allineamento di ED-stringhe. Anche per questa ragione, mi piacerebbe avere un confronto tra il nuovo algoritmo e quello esistente. Se non mi ricordo male, avevamo detto che il nuovo è più efficiente (in termini di spazio, o anche di tempo?) asistoticamente. O mi ricordo male? Per adesso non vedo nessuna analisi teorica nel Capitolo 4. 
+
+-->
+
+(2) Quello che lei ha come Introduzione sarebbe più un'Abstract, che ogni tesi deve avere. Infatti, mi pare che l'abstract dovrebbe essere presente sia in italiano che in inglese. L'abstract dovrebbe essere forse la metà in lunghezza, ma come contenuti è quello che ha scritto lei: un sommario dei contenuti e dei risultati della tesi, incluso un po' di motivazione. L'abstract sarà l'unica cosa che apparirà sulla pagina web della sua tesi, va bene se scritto in stile tecnico, e deve essere ignorato nella tesi stessa (cioè tutto viene detto di nuovo). 
+
+-->
+
+L'introduzione dovrebbe essere più lunga, allargarsi un po' sulla tematica e il background, in questo caso possibilmente anche biologico (un pochino), e di sicuro dovrebbe avere una parte sulle D-strings e le ED-strings, dato che questo è un contributo importante della tesi. Non è però urgente, l'Introduzione la può scrivere quando il resto è finito. 
+
+-->
+
+Come risposta a un commento/domanda sua che ho visto: Si ripete tutto nella parte "Basics" o più avanti, anche se già incluso nell'Introduzione. L'introduzione è pensata per un pubblico generale informatico, mentre la tesi vera inizia con il capitolo 2. 
+
+-->
+
+
+*** Cose generali, di formattazione etc. 
+
+(a) In generale, le chiedo di includere più citazioni, sia a pagine web/implementazioni (per es. per Rust), che a articoli. 
+
+-->
+
+(b) Come si citano le URL? O come bibitem: @misc{..., ... howpublished = \url{}, ...}, o come footnote. 
+
+-->
+
+(c) Quando scrive testo in italics, le chiedo di scrivere \textit{...} all'interno dei dollari o degli environment che usano mathmode. (Forse conviene usare i macro.) Per es. all'interno dei environment che usa per gli pseudocodici. Altrimenti il testo viene brutto, perché Latex lo interpreta come singoli caratteri ognuno una variable. 
+
+-->
+
+(d) Per le stringhe, o usiamo stile matematico: A = A_1A_2\cdots A_n, o usiamo stile array: A = A[1..n] = A[1]A[2]\cdots A[n]. Non mischiare i due stile (come per es. nella caption della Fig. 3.2). 
+
+Direi di usare stile array, perché molto più naturale per chi programma e andrà molto bene in questa tesi. 
+
+-->
+
+(e) Le chiedo di scrivere $(n_1 \cdot m_2)-1$ invece di $(n1 * m2)-1$ (p.11). Mi ricordo di aver detto nel passato che andava bene anche così, ma ho cambiato idea: la tesi sta diventando sempre più teorica e scrivere $(n1 * m2)$ semplicemente non è lo standard. In particolare, $n1$ è una variable che si scrive così nel codice, ma come variable non si può usarlo così. 
+
+--> Fatto
+
+Questo commento, come anche quelli precendenti, ovviamente si riferisce a tutti i casi simili nella tesi. 
+
+(f) Il linguaggio italiano matematico è molto maschilista. Non possiamo farci tanto, ma se non le dispiace, sarei grata se almeno usasse "nodo genitore" invece di "nodo padre" quando stiamo parlando di un albero. In inglese questo cambiamento è stato fatto vari decenni fa: oggi si dice 'parent, child, sibling node' invece delle versioni vecchie 'father, son, brother node'. Purtroppo in italiano, quanto lo sappia, fin'ora non c'è un alternativa per 'figlio' e 'fratello', ma per 'padre' sì. 
+
+--> Padre sostituito. Posso fare "nodo discendente" e "nodo omologo" o "nodo sullo stesso livello" o "nodo con lo stesso genitore", che dice?
+
+(g) La tesi è in italiano, che va benissimo, come abbiamo già detto. Mi piacerebbe però se potesse mettere i termini originali in inglese al primo uso (in brackets and in italics). Specialmente se il termine italiano è molto diverso (come per "backtracing"). 
+
+-->
+
+(h) complessità di spazio (non: spaziale)
+
+--> Fatto
+
+
+
+
+
+==================================
+========= REGOLE GENERALI ========
+==================================
+
+1) Complessità spaziale => complessità di spazio
+2) Nodo padre => nodo genitore
