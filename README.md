@@ -188,8 +188,6 @@ Current virtual memory usage: 7327744
 
 (2) Quello che lei ha come Introduzione sarebbe più un'Abstract, che ogni tesi deve avere. Infatti, mi pare che l'abstract dovrebbe essere presente sia in italiano che in inglese. L'abstract dovrebbe essere forse la metà in lunghezza, ma come contenuti è quello che ha scritto lei: un sommario dei contenuti e dei risultati della tesi, incluso un po' di motivazione. L'abstract sarà l'unica cosa che apparirà sulla pagina web della sua tesi, va bene se scritto in stile tecnico, e deve essere ignorato nella tesi stessa (cioè tutto viene detto di nuovo). 
 
--->
-
 L'introduzione dovrebbe essere più lunga, allargarsi un po' sulla tematica e il background, in questo caso possibilmente anche biologico (un pochino), e di sicuro dovrebbe avere una parte sulle D-strings e le ED-strings, dato che questo è un contributo importante della tesi. Non è però urgente, l'Introduzione la può scrivere quando il resto è finito. 
 
 -->
@@ -203,11 +201,11 @@ Come risposta a un commento/domanda sua che ho visto: Si ripete tutto nella part
 
 (a) In generale, le chiedo di includere più citazioni, sia a pagine web/implementazioni (per es. per Rust), che a articoli. 
 
--->
+--> Ok
 
 (b) Come si citano le URL? O come bibitem: @misc{..., ... howpublished = \url{}, ...}, o come footnote. 
 
--->
+--> Ok, grazie
 
 (c) Quando scrive testo in italics, le chiedo di scrivere \textit{...} all'interno dei dollari o degli environment che usano mathmode. (Forse conviene usare i macro.) Per es. all'interno dei environment che usa per gli pseudocodici. Altrimenti il testo viene brutto, perché Latex lo interpreta come singoli caratteri ognuno una variable. 
 
@@ -217,7 +215,7 @@ Come risposta a un commento/domanda sua che ho visto: Si ripete tutto nella part
 
 Direi di usare stile array, perché molto più naturale per chi programma e andrà molto bene in questa tesi. 
 
--->
+--> Fatto, se manca in qualche punto me ne accorgerò in riletture future e correggerò
 
 (e) Le chiedo di scrivere $(n_1 \cdot m_2)-1$ invece di $(n1 * m2)-1$ (p.11). Mi ricordo di aver detto nel passato che andava bene anche così, ma ho cambiato idea: la tesi sta diventando sempre più teorica e scrivere $(n1 * m2)$ semplicemente non è lo standard. In particolare, $n1$ è una variable che si scrive così nel codice, ma come variable non si può usarlo così. 
 
@@ -247,3 +245,10 @@ Questo commento, come anche quelli precendenti, ovviamente si riferisce a tutti 
 
 1) Complessità spaziale => complessità di spazio
 2) Nodo padre => nodo genitore
+3) Per citare gli URL, esempio:
+        @misc{rust,
+                howpublished = \url,
+                key = {https://www.rust-lang.org/},
+                title = {Rust language}
+        }
+4) Per gli array usare sempre notazione A = A[1..n] = A[1]A[2]\cdots A[n]
