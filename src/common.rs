@@ -139,23 +139,45 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
         return;
     }
 
+    // if current_node != *protected && children_num == 1 && current_node != 0 && !dont_skip.contains(&(current_node / m1)) {
+    //     let n: &mut TreeNode = get_mut_from_map(tree, &current_node);
+    //     let vmov0 = (current_node % m1 - n.parent % m1) as i64;
+    //     let vmov1 = (n.children[0] % m1 - n.pos % m1) as i64;
+    //     let hmov0 = (current_node / m1) as i64 - (n.parent / m1) as i64;
+    //     let hmov1 = (n.children[0] / m1) as i64 - (n.pos / m1) as i64;
+    //     let diag = hmov0 == vmov0 && hmov1 == vmov1;
+    //     let left = hmov0 == 0 && hmov1 == 0;
+    //     let up = vmov0 == 0 && vmov1 == 0;
+    //     if diag || left || up {
+    //         // println!("Exited on {} and I can skip it (diag [to be extended]) {:?}", current_node, n);
+    //         skip_node(current_node, tree);
+    //     } else if TREE_MODE {
+    //         // println!("Exited on {} and I can work on this node to skip it?", current_node);
+    //         //* In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
+    //         // La possiamo chiamare "tree mode"
+    //         skip_node(current_node, tree);
+    //     }
+    // } // Questo abilita la "nuova versione"
+
     if current_node != *protected && children_num == 1 && current_node != 0 && !dont_skip.contains(&(current_node / m1)) {
-        let n: &mut TreeNode = get_mut_from_map(tree, &current_node);
-        let vmov0 = (current_node % m1 - n.parent % m1) as i64;
-        let vmov1 = (n.children[0] % m1 - n.pos % m1) as i64;
-        let hmov0 = (current_node / m1) as i64 - (n.parent / m1) as i64;
-        let hmov1 = (n.children[0] / m1) as i64 - (n.pos / m1) as i64;
-        let diag = hmov0 == vmov0 && hmov1 == vmov1;
-        let left = hmov0 == 0 && hmov1 == 0;
-        let up = vmov0 == 0 && vmov1 == 0;
-        if diag || left || up {
-            // println!("Exited on {} and I can skip it (diag [to be extended]) {:?}", current_node, n);
-            skip_node(current_node, tree);
-        } else if TREE_MODE {
+        if TREE_MODE {
             // println!("Exited on {} and I can work on this node to skip it?", current_node);
             //* In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
             // La possiamo chiamare "tree mode"
             skip_node(current_node, tree);
+        } else {
+            let n: &mut TreeNode = get_mut_from_map(tree, &current_node);
+            let vmov0 = (current_node % m1 - n.parent % m1) as i64;
+            let vmov1 = (n.children[0] % m1 - n.pos % m1) as i64;
+            let hmov0 = (current_node / m1) as i64 - (n.parent / m1) as i64;
+            let hmov1 = (n.children[0] / m1) as i64 - (n.pos / m1) as i64;
+            let diag = hmov0 == vmov0 && hmov1 == vmov1;
+            let left = hmov0 == 0 && hmov1 == 0;
+            let up = vmov0 == 0 && vmov1 == 0;
+            if diag || left || up {
+                // println!("Exited on {} and I can skip it (diag [to be extended]) {:?}", current_node, n);
+                skip_node(current_node, tree);
+            }
         }
     } // Questo abilita la "nuova versione"
 }
