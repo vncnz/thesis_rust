@@ -160,7 +160,7 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
     // } // Questo abilita la "nuova versione"
 
     if current_node != *protected && children_num == 1 && current_node != 0 && !dont_skip.contains(&(current_node / m1)) {
-        if TREE_MODE {
+        if TREE_MODE { // ! TOFIX, BEWARE: THERE'S A SKIPPED NODE IN THESIS EXAMPLE
             // println!("Exited on {} and I can work on this node to skip it?", current_node);
             //* In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
             // La possiamo chiamare "tree mode"
