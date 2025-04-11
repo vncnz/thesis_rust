@@ -41,8 +41,14 @@ fn main() {
     let y_sequence = read_fasta_sequence_solid(y_fasta_path).unwrap();
     let y_sequence_str: &str = &y_sequence;
 
+    // let x_sequence_str = "AAAAAAAA";
+    // let y_sequence_str: &str = "ATATATATATATATA";
+
     let (score, max_pos);
-    if y_sequence_str.contains('[') {
+
+    let degenerate: bool = y_sequence_str.contains('[');
+
+    if degenerate {
         (score, max_pos) = main_de::build_tree(&x_sequence_str[0..], &y_sequence_str[0..], 1, -1, -1);
     } else {
         (score, max_pos) = main_plain::build_tree(&x_sequence_str[0..], &y_sequence_str[0..], 1, -1, -1);
@@ -51,7 +57,7 @@ fn main() {
     // let (score, max_pos) = main_de::build_tree(&X[0..], &Y[0..], 1, -1, -1);
 
     println!("Alignment Score: {}   Position: {}", score, max_pos);
-    println!("Is degenerate: {}", y_sequence_str.contains('['));
+    println!("Is degenerate: {}", degenerate);
 }
 
 // example 0
