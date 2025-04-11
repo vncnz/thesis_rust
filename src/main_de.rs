@@ -202,14 +202,22 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
             let delete = get_from_map(&tree, &wup).points + gap;
             let insert = get_from_map(&tree, &wleft).points + gap;
 
-            if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
+            /* if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
                 create_node(w, wdiag, match_mismatch_delta_points, &mut tree);
                 // L'elemento in diagonale ovviamente non è leaf ma per la versione con percorsi compressi ci serve comunque valutarla?
             } else if delete > insert { // * Preferiamo il movimento orizzontale!
                 create_node(w, wup, delete, &mut tree);
             } else {
                 create_node(w, wleft, insert, &mut tree);
+            } */
+            if insert >= match_mismatch_delta_points && insert >= delete {    // * Preferiamo il movimento orizzontale!
+                create_node(w, wleft, insert, &mut tree);
+            } else if match_mismatch_delta_points >= delete {                // * In alternativa, il diagonale
+                create_node(w, wdiag, match_mismatch_delta_points, &mut tree);
+            } else {                                                        // * Infine, il verticale
+                create_node(w, wup, delete, &mut tree);
             }
+
             tree_prune(wdiag, &mut tree, &max_pos, &m1, &lines_to_keep, &dont_skip);
         }
 
