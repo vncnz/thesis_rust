@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use memory_stats::memory_stats;
 
 #[path = "common.rs"] mod common;
-use common::{create_node, get_from_map, print_alignment, tree_prune, TreeNode};
+use common::{create_node, get_from_map, print_alignment, tree_prune, write_file, TreeNode};
 
 pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
 
@@ -69,21 +69,30 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
             let delete = get_from_map(&tree, &wup).points + gap;
             let insert = get_from_map(&tree, &wleft).points + gap;
 
-            if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
+            /* if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
                 create_node(w, wdiag, match_mismatch_delta_points, &mut tree);
                 // L'elemento in diagonale ovviamente non è leaf ma per la versione con percorsi compressi ci serve comunque valutarla!
-            } else if delete > insert { // * Preferiamo il movimento orizzontale!
+            } else if delete > insert { // * Preferiamo il movimento orizzontale! ... appunto, mica è questo -.-'
                 create_node(w, wup, delete, &mut tree);
             } else {
                 create_node(w, wleft, insert, &mut tree);
+            } */
+
+            if insert >= match_mismatch_delta_points && insert >= delete {    // * Preferiamo il movimento orizzontale!
+                create_node(w, wleft, insert, &mut tree);
+            } else if match_mismatch_delta_points >= delete {                // * In alternativa, il diagonale
+                create_node(w, wdiag, match_mismatch_delta_points, &mut tree);
+            } else {                                                        // * Infine, il verticale
+                create_node(w, wup, delete, &mut tree);
             }
+           
             tree_prune(wdiag, &mut tree, &max_pos, &m1, &Vec::new(), &Vec::new()); // prune dell'elemento in diagonale
 
             // dp[1][j] = std::cmp::max(match_mismatch_delta_points, std::cmp::max(delete, std::cmp::max(insert, 0)));
 
             // Traccia il punteggio massimo e la sua posizione
 
-            if w == 81 || w == 82 {
+            /* if w == 81 || w == 82 {
                 let for_drawer = serde_json::json!({
                     "dependences": [],
                     "tree": &tree,
@@ -94,7 +103,7 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
                     "w": &w
                 });
                 println!("\n(Element {:?} computed)\n{:?}\n\n", w, serde_json::to_string(&for_drawer).unwrap());
-            }
+            } */
         }
         let last_idx = j*m1 + m1 - 1;
         let last_node_points = get_from_map(&tree, &last_idx).points;
