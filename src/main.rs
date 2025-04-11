@@ -74,6 +74,10 @@ fn main() {
 // static X: &str = "AAATTAGA";
 // static Y: &str = "AAA[TTT|CC]AAATGGAAA";
 
+// Caso pessimo
+// static X: &str = "AAAAAAAA";
+// static Y: &str = "ATATATATATATATA";
+
 // thesis example fig 3.2
 // static X: &str = "CCTACA";
 // static Y: &str = "ACCTTCCATACCAGTCA";
