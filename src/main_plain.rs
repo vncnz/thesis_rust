@@ -37,9 +37,9 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
     let mut ratio: f64 = 100.0;
     for j in 1..n1 {
 
-        ratio = ((100 * tree.len() / (m1*j)) as f64).round();
+        ratio = ((100.0 * (tree.len() as f64) / ((m1*j) as f64)) as f64);
         if j % std::cmp::max(1 as usize, (n/20) as usize) == 0 {
-            println!("\nRow j={} ({}) tree is {}%", j, seq2.as_bytes()[j - 1] as char, ratio);
+            println!("\nRow j={} ({}) tree is {}%", j, seq2.as_bytes()[j - 1] as char, ratio.round());
 
             if let Some(usage) = memory_stats() {
                 println!("Current physical memory usage: {}", usage.physical_mem);
@@ -110,25 +110,6 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
 
     }
 
-    println!("Matrix size {} x {} = {}", m1, n1, m1*n1);
-    println!("Tree size {} nodes ({}% of matrix size)", tree.len(), ratio);
-    println!("m is {} and m^2 is {}. n+m is {}", m, m*m, n+m);
-
-    if tree.len() < 170 {
-        println!("\nFull schema saved in memory");
-        print_hash_map(&tree);
-        println!("\nPath from best score to root (w={})", max_pos);
-        print_path_to_root_full(max_pos, &tree);
-    } else if tree.len() < 1_000 {
-        println!("\nFull schema saved in memory too big to be printed, sorry");
-        println!("\nPath from best score to root (w={})", max_pos);
-        print_path_to_root_compressed(max_pos, &tree);
-    } else {
-        println!("\nFull schema saved in memory too big to be printed, sorry");
-        println!("\nPath from best score to root (w={})", max_pos);
-    }
-    print_alignment(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
-
     // println!("{:?}", serde_json::to_string(&tree).unwrap());
 
     let for_drawer = serde_json::json!({
@@ -140,6 +121,11 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
         "max_points": &max_score
     });
     println!("\n\n{:?}\n\n", serde_json::to_string(&for_drawer).unwrap());
+
+    println!("Matrix size {} x {} = {}", m1, n1, m1*n1);
+    println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
+
+    print_alignment(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
 
     (max_score, max_pos)
 }

@@ -244,11 +244,7 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
         // if j == 7 { print_hash_map(&tree); }
     }
 
-    println!("Matrix size {} x {} = {}", m1, n1, m1*n1);
-    println!("Tree size {} nodes ({}% of matrix size)", tree.len(), ratio);
-    println!("m is {} and m^2 is {}. n+m is {}", m, m*m, n+m);
-
-    if tree.len() < 170 {
+    /* if tree.len() < 170 {
         println!("\nFull schema saved in memory");
         print_hash_map(&tree);
         println!("\nPath from best score to root (w={})", max_pos);
@@ -260,11 +256,9 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
     } else {
         println!("\nFull schema saved in memory too big to be printed, sorry");
         println!("\nPath from best score to root (w={})", max_pos);
-    }
+    } */
 
     println!("{} -> {} with dependences={:?} and dont_delete={:?}", seq, seq2, dependences, dont_skip);
-
-    print_alignment(max_pos, &tree, seq1, seq2, m1, &dependences);
 
     // println!("{:?}", serde_json::to_string(&tree).unwrap());
     // println!("{:?}", serde_json::to_string(&dependences).unwrap());
@@ -278,6 +272,11 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
         "max_points": &max_score
     });
     println!("\n\n{:?}\n\n", serde_json::to_string(&for_drawer).unwrap());
+
+    println!("Matrix size {} x {} = {}", m1, n1, m1*n1);
+    println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
+
+    print_alignment(max_pos, &tree, seq1, seq2, m1, &dependences);
 
     // cli_clipboard::set_contents(serde_json::to_string(&for_drawer).unwrap().to_owned()).unwrap();
 
