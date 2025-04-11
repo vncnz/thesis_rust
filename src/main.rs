@@ -1,6 +1,9 @@
 mod main_plain;
 mod main_de;
 
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+
 /* fn read_file (path: &str) {
     fs::read_to_string(path).expect("Unable to read file");
 }
@@ -13,19 +16,42 @@ fn write_file (path: &str, data: &str) {
 
 // static VERBOSE_MODE: bool = false;
 
+fn read_fasta_sequence_solid(path: &str) -> Option<String> {
+    // let file = File::open(path).expect(&format!("Error opening {}", path));
+    let file = File::open(path).unwrap_or_else(|err| panic!("Error opening {}: {}", path, err));
+    let reader = BufReader::new(file);
+
+    let sequence: String = reader
+        .lines()
+        .filter_map(Result::ok)
+        .filter(|line| !line.starts_with('>')) // ignora intestazioni
+        .collect::<Vec<_>>()
+        .join("");
+
+    Some(sequence)
+}
+
 fn main() {
 
+    let x_fasta_path = "let-60_N2.txt";
+    let x_sequence = read_fasta_sequence_solid(x_fasta_path).unwrap();
+    let x_sequence_str: &str = &x_sequence;
+
+    let y_fasta_path = "let-60_CB4856.txt";
+    let y_sequence = read_fasta_sequence_solid(y_fasta_path).unwrap();
+    let y_sequence_str: &str = &y_sequence;
+
     let (score, max_pos);
-    if Y.contains('[') {
-        (score, max_pos) = main_de::build_tree(&X[0..], &Y[0..], 1, -1, -1);
+    if y_sequence_str.contains('[') {
+        (score, max_pos) = main_de::build_tree(&x_sequence_str[0..], &y_sequence_str[0..], 1, -1, -1);
     } else {
-        (score, max_pos) = main_plain::build_tree(&X[0..], &Y[0..], 1, -1, -1);
+        (score, max_pos) = main_plain::build_tree(&x_sequence_str[0..], &y_sequence_str[0..], 1, -1, -1);
     }
     // let (score, max_pos) = main_plain::build_tree(&X[0..], &Y[0..], 1, -1, -1);
     // let (score, max_pos) = main_de::build_tree(&X[0..], &Y[0..], 1, -1, -1);
 
     println!("Alignment Score: {}   Position: {}", score, max_pos);
-    println!("Is degenerate: {}", Y.contains('['));
+    println!("Is degenerate: {}", y_sequence_str.contains('['));
 }
 
 // example 0
@@ -45,8 +71,8 @@ fn main() {
 // static Y: &str = "ACCTTCGGGCCAGTCATATTTCA";
 
 // thesis example fig 4.3 - de-strings
-static X: &str = "AAATTAGA";
-static Y: &str = "AAA[TTT|CC]AAATGGAAA";
+// static X: &str = "AAATTAGA";
+// static Y: &str = "AAA[TTT|CC]AAATGGAAA";
 
 // thesis example fig 3.2
 // static X: &str = "CCTACA";
