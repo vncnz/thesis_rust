@@ -120,9 +120,13 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
         "max_pos": &max_pos,
         "max_points": &max_score
     });
-    println!("\n\n{:?}\n\n", serde_json::to_string(&for_drawer).unwrap());
 
-    println!("Matrix size {} x {} = {}", m1, n1, m1*n1);
+    let written = write_file(&for_drawer);
+    if written.is_err() { panic!("\n❌ Error writing file"); }
+    else { println!("\n✅ Full tree written in /tmp/alignment_tree.json ready for drawing"); }
+    // println!("\n\n{:?}\n\n", serde_json::to_string(&for_drawer).unwrap());
+
+    println!("\nMatrix size {} x {} = {}", m1, n1, m1*n1);
     println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
 
     print_alignment(max_pos, &tree, seq1, seq2, m1, &HashMap::new());

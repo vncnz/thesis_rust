@@ -4,6 +4,7 @@ use std::collections::HashMap;
 // use itertools::Itertools;
 use colored::*;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 static TREE_MODE: bool = false;
 
@@ -344,7 +345,16 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
 }
 
 
+use std::fs::File;
+use std::io::{BufWriter, Write};
 
+pub fn write_file(v: &Value) -> std::io::Result<()> {
+    let file = File::create("/tmp/alignment_tree.json")?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, v)?;
+    writer.flush()?;
+    Ok(())
+}
 
 
 
