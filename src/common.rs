@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 // use std::fs;
 // use serde_json;
-use itertools::Itertools;
+// use itertools::Itertools;
 use colored::*;
 use serde::{Deserialize, Serialize};
 
@@ -16,7 +16,7 @@ pub struct TreeNode {
     pub(crate) points: i32
 }
 
-pub fn print_hash_map(map: &HashMap<usize, TreeNode>) {
+/* pub fn print_hash_map(map: &HashMap<usize, TreeNode>) {
     // for (key, value) in &*map {
     for key in map.keys().sorted() {
         // println!("{:3} / {:?}", &key, &value);
@@ -43,7 +43,7 @@ pub fn print_path_to_root_full(starting: usize, map: &HashMap<usize, TreeNode>) 
         cnode = get_from_map(map, &cnode.parent); // &map[&cnode.parent];
         println!("{:?}", &cnode);
     }
-}
+} */
 
 pub fn get_from_map<'a, K: Eq + std::hash::Hash + std::fmt::Debug, V>(map: &'a HashMap<K, V>, key: &K) -> &'a V {
     map.get(key).expect(&format!("Key {:?} not found in map", key))
@@ -356,7 +356,7 @@ pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, se
 
 
 //TODO: To be removed, plain version of tree_prune is obtainable from tree_prune with two additional empty arrays
-pub fn tree_prune_plain(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, m1: &usize) {
+/* pub fn tree_prune_plain(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, m1: &usize) {
     let mut current_node: usize = w;
     let mut children_num: usize = 100;
 
@@ -421,9 +421,9 @@ pub fn tree_prune_plain(w: usize, tree: &mut HashMap<usize, TreeNode>, protected
             skip_node(current_node, tree);
         } else if TREE_MODE {
             // println!("Exited on {} and I can work on this node to skip it?", current_node);
-            //* In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
+            // * In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
             // La possiamo chiamare "tree mode"
             skip_node(current_node, tree);
         }
     } // Questo abilita la "nuova versione"
-}
+} */

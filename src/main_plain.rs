@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use memory_stats::memory_stats;
 
 #[path = "common.rs"] mod common;
-use common::{create_node, get_from_map, print_alignment, print_hash_map, print_path_to_root_compressed, print_path_to_root_full, tree_prune, TreeNode};
+use common::{create_node, get_from_map, print_alignment, tree_prune, TreeNode};
 
 pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
 
@@ -37,7 +37,7 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
     let mut ratio: f64 = 100.0;
     for j in 1..n1 {
 
-        ratio = ((100.0 * (tree.len() as f64) / ((m1*j) as f64)) as f64);
+        ratio = (100.0 * (tree.len() as f64) / ((m1*j) as f64)) as f64;
         if j % std::cmp::max(1 as usize, (n/20) as usize) == 0 {
             println!("\nRow j={} ({}) tree is {}%", j, seq2.as_bytes()[j - 1] as char, ratio.round());
 
