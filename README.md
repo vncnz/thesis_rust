@@ -5,6 +5,14 @@ This is a private project.
 ## Notes
 Install https://code.visualstudio.com/docs/languages/rust
 
+## Known bug
+
+let x_sequence_str = "CCTACA";
+let y_sequence_str: &str = "ACCTTCCATACCAGTCA";
+
+Il nodo 7 risulta branching node perchè non viene rimosso 47 dalla lista dei suoi figli!
+
+
 ## TODOs
 - [x] Protect best node from pruning
 - [x] Redo pruning on max_pos after change
