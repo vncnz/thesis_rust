@@ -222,10 +222,13 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
         }
 
         let last_idx = j*m1 + m1 - 1;
-        let last_node_points = get_from_map(&tree, &last_idx).points;
+
+        let last_node = get_from_map(&tree, &last_idx);
+        let last_node_points = last_node.points;
         if last_node_points > max_score {
-            if max_pos > 0 && max_pos < (j-1)*m1 - 1 { tree_prune(max_pos, &mut tree, &((j+1)*m1 -1), &m1, &lines_to_keep, &dont_skip); }
-            // Occhio ad eliminarlo solo se non ha figli, tree_node al momento non fa questo controllo
+            if max_pos > 0 && max_pos < (j-1)*m1 && last_node.children.len() == 0 {
+                tree_prune(max_pos, &mut tree, &((j+1)*m1 -1), &m1, &lines_to_keep, &dont_skip);
+            }
             max_score = last_node_points;
             max_pos = last_idx;
         }
