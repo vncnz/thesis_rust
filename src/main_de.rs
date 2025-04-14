@@ -5,36 +5,6 @@ use memory_stats::memory_stats;
 #[path = "common.rs"] mod common;
 use common::{create_node, get_from_map, recostruct_alignment, tree_prune, write_file, TreeNode};
 
-/* fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize, Vec<usize>>) {
-  let variants = HashMap::from([
-      ('W', vec!["TTT", "CC"])
-  ]);
-  let mut faked: String = String::new();
-  let mut dependences: HashMap<usize, Vec<usize>> = HashMap::new();
-  // let mut last = -1;
-
-  for c in seq.chars() {
-      match c {
-          'A' | 'C' | 'G' | 'T' => faked.push(c),
-          _ => {
-              let start = faked.len() - 1;
-              let mut derivates = Vec::new();
-              for i in 0..variants[&c].len() {
-                  faked.push_str(variants[&c][i]);
-                  derivates.push(faked.len() - 1);
-                  dependences.insert(faked.len() - 1, [start].to_vec());
-              }
-              let end = faked.len();
-              derivates.insert(0, start);
-              dependences.insert(end, derivates);
-              // println!("start: {}   end: {}   derivates: {:?}", start, end, derivates);
-          }
-      };
-  }
-  println!("dependences: {:?}", dependences);
-  (faked, dependences)
-} */
-
 fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize, Vec<usize>>) {
     let mut faked: String = String::new();
     let mut dependences: HashMap<usize, Vec<usize>> = HashMap::new();
