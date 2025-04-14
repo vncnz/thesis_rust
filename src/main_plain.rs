@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use memory_stats::memory_stats;
 
 #[path = "common.rs"] mod common;
-use common::{create_node, get_from_map, recostruct_alignment, tree_prune, write_file, TreeNode};
+use common::{create_node, get_from_map, recostruct_alignment, recostruct_subproblems, tree_prune, write_file, TreeNode, TREE_MODE};
 
 pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
 
@@ -145,7 +145,11 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
     println!("\nMatrix size {} x {} = {}", m1, n1, m1*n1);
     println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
 
-    recostruct_alignment(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
+    if TREE_MODE {
+        recostruct_subproblems(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
+    } else {
+        recostruct_alignment(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
+    }
 
     (max_score, max_pos)
 }
