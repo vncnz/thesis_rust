@@ -276,7 +276,7 @@ pub fn print_alignment_DEPRECATED(max_points_pos: usize, map: &HashMap<usize, Tr
 }
 */
 
-pub fn print_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) {
+pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) {
     let seq1v: Vec<char> = seq1.chars().collect();
     let seq2v: Vec<char> = seq2.chars().collect();
     let end_pos = (seq1v.len() + 1) * (seq2v.len() + 1) - 1;

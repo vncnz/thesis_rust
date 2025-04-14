@@ -3,7 +3,7 @@ use memory_stats::memory_stats;
 // use cli_clipboard;
 
 #[path = "common.rs"] mod common;
-use common::{create_node, get_from_map, print_alignment, tree_prune, write_file, TreeNode};
+use common::{create_node, get_from_map, recostruct_alignment, tree_prune, write_file, TreeNode};
 
 /* fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize, Vec<usize>>) {
   let variants = HashMap::from([
@@ -291,7 +291,7 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
     println!("Matrix size {} x {} = {}", m1, n1, m1*n1);
     println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
 
-    print_alignment(max_pos, &tree, seq1, seq2, m1, &dependences);
+    recostruct_alignment(max_pos, &tree, seq1, seq2, m1, &dependences);
 
     // cli_clipboard::set_contents(serde_json::to_string(&for_drawer).unwrap().to_owned()).unwrap();
 
