@@ -345,13 +345,11 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
 }
 
 pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) {
-    // ! Sistemare e testare!
-    let seq1v: Vec<char> = seq1.chars().collect();
-    let seq2v: Vec<char> = seq2.chars().collect();
-    let end_pos = (seq1v.len() + 1) * (seq2v.len() + 1) - 1;
+    // !! Da testare e da modificare per la versione de-strings!
+    // let seq1v: Vec<char> = seq1.chars().collect();
+    // let seq2v: Vec<char> = seq2.chars().collect();
+    let end_pos = (seq1.len() + 1) * (seq2.len() + 1) - 1;
     // println!("end pos is {}", end_pos);
-    let mut a: String = "".to_owned();
-    let mut b: String = "".to_owned();
 
     let mut cnode = &TreeNode { pos: end_pos, parent: max_points_pos, children: [].to_vec(), depth: 0, points: 0 };
     if end_pos == max_points_pos {
@@ -364,24 +362,15 @@ pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNo
     let mut couples = vec![];
 
     let mut ssafe = seq1.len() * seq2.len() + 3;
+
+    couples.push((end_pos % m1, end_pos / m1));
+
     while ssafe > 0 && pos > 0 {
         // println!("\n   ssafe={} p={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1, &cnode);
         ssafe -= 1;
 
-        let hpos = pos % m1;
-        let vpos = pos / m1;
         let hparent = parent % m1;
         let vparent = parent / m1;
-        let hmov = hpos - hparent;
-        let vmov = vpos - vparent;
-
-
-        // println!("Indeces x={} ({}) y={} ({})", p%m1, seq1v[p%m1 -1], p/m1, seq2v[p/m1 -1]);
-        if vmov > 0 { b.insert_str(0, &seq2[vparent..vpos]); }
-        else { b.insert_str(0, "----"); }
-
-        if hmov > 0 { a.insert_str(0, &seq1[hparent..hpos]); }
-        else { a.insert_str(0, "----"); }
 
         couples.push((hparent, vparent));
 
@@ -396,10 +385,21 @@ pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNo
         panic!("{}", "Infinite cycle detected in alignment recostruction".red().bold());
     }
 
+    couples.reverse();
+
     println!("\n\n{}", "Alignment completed".green());
-    println!("{}", a);
-    println!("{}", b);
     println!("{:?}", couples);
+
+    for window in couples.windows(2) {
+        let [couple0, couple1] = window else { continue };
+        if couple0.0 == couple1.0 {
+            println!("{:?} / {:?} Same column (no computation needed)", couple0, couple1);
+        } else if couple0.1 == couple1.1 {
+            println!("{:?} / {:?} Same row (no computation needed)", couple0, couple1);
+        } else {
+            println!("{:?} / {:?} Submatrix (to be computed)", couple0, couple1);
+        }
+    }
 }
 
 
