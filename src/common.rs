@@ -6,7 +6,7 @@ use colored::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-pub static TREE_MODE: bool = true;
+pub static TREE_MODE: bool = false;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TreeNode {
@@ -276,7 +276,7 @@ pub fn print_alignment_DEPRECATED(max_points_pos: usize, map: &HashMap<usize, Tr
 }
 */
 
-pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) {
+pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<(usize, usize)> {
     let seq1v: Vec<char> = seq1.chars().collect();
     let seq2v: Vec<char> = seq2.chars().collect();
     let end_pos = (seq1v.len() + 1) * (seq2v.len() + 1) - 1;
@@ -293,6 +293,8 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
     let mut vmov = cnode.pos / m1 != cnode.parent / m1;
     let mut p = cnode.pos;
     let mut parent = cnode.parent;
+
+    let mut coords = vec![];
 
     let mut ssafe = seq1.len() * seq2.len() + 3;
     while ssafe > 0 && p > 0 {
@@ -324,6 +326,9 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
             if vmov  { p = p - m1; }
             if hmov { p = p - 1; }
         }
+
+        coords.push((p % m1, p / m1));
+
         if &p == &parent {
             cnode = get_from_map(map, &p);
             parent = cnode.parent;
@@ -339,12 +344,19 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
         panic!("{}", "Infinite cycle detected in alignment recostruction".red().bold());
     }
 
+    coords.reverse();
+
     println!("\n\n{}", "Alignment completed".green());
-    println!("{}", a);
-    println!("{}", b);
+    // println!("{:?}", coords);
+    if a.len() < 50 {
+        println!("{}", a);
+        println!("{}", b);
+    }
+
+    coords
 }
 
-pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) {
+pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<(usize, usize)> {
     // !! Da testare e da modificare per la versione de-strings!
     // let seq1v: Vec<char> = seq1.chars().collect();
     // let seq2v: Vec<char> = seq2.chars().collect();
@@ -359,11 +371,11 @@ pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNo
     let mut pos = cnode.pos;
     let mut parent = cnode.parent;
 
-    let mut couples = vec![];
+    let mut coords = vec![];
 
     let mut ssafe = seq1.len() * seq2.len() + 3;
 
-    couples.push((end_pos % m1, end_pos / m1));
+    coords.push((end_pos % m1, end_pos / m1));
 
     while ssafe > 0 && pos > 0 {
         // println!("\n   ssafe={} p={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1, &cnode);
@@ -372,7 +384,7 @@ pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNo
         let hparent = parent % m1;
         let vparent = parent / m1;
 
-        couples.push((hparent, vparent));
+        coords.push((hparent, vparent));
 
         cnode = get_from_map(map, &parent);
         pos = cnode.pos;
@@ -385,21 +397,23 @@ pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNo
         panic!("{}", "Infinite cycle detected in alignment recostruction".red().bold());
     }
 
-    couples.reverse();
+    coords.reverse();
 
     println!("\n\n{}", "Alignment completed".green());
-    println!("{:?}", couples);
+    println!("{:?}", coords);
 
-    for window in couples.windows(2) {
+    for window in coords[..coords.len().min(100)].windows(2) {
         let [couple0, couple1] = window else { continue };
         if couple0.0 == couple1.0 {
             println!("{:?} / {:?} Same column (no computation needed)", couple0, couple1);
         } else if couple0.1 == couple1.1 {
             println!("{:?} / {:?} Same row (no computation needed)", couple0, couple1);
         } else {
-            println!("{:?} / {:?} Submatrix (to be computed)", couple0, couple1);
+            println!("{:?} / {:?} Submatrix (to be computed {} elements)", couple0, couple1, (couple1.0 - couple0.0) * (couple1.1 - couple0.1));
         }
     }
+
+    coords
 }
 
 

@@ -112,7 +112,6 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
             // println!("Il nuovo nodo {} (punti {}) rimpiazza {} (punti {})?. Elimino il vecchio?", last_idx, last_node_points, max_pos, max_score);
             if max_pos > 0 && max_pos < (j-1)*m1 && last_node.children.len() == 0 {
                 // println!("sì");
-                // Occhio ad eliminarlo solo se non ha figli, tree_node al momento non fa questo controllo
                 tree_prune(max_pos, &mut tree, &((j+1)*m1 -1), &m1, &Vec::new(), &Vec::new());
             } else {
                 // println!("no (max_pos={} j={}/m1={})", max_pos, j, m1);
@@ -126,7 +125,15 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
 
     }
 
-    // println!("{:?}", serde_json::to_string(&tree).unwrap());
+    println!("\nMatrix size {} x {} = {}", m1, n1, m1*n1);
+    println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
+
+    let mut waypoints: Vec<(usize, usize)> = vec!();
+    if TREE_MODE {
+        waypoints = recostruct_subproblems(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
+    } else {
+        waypoints = recostruct_alignment(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
+    }
 
     let for_drawer = serde_json::json!({
         "dependences": [],
@@ -134,22 +141,13 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
         "seq1": &seq1,
         "seq2": &seq2,
         "max_pos": &max_pos,
-        "max_points": &max_score
+        "max_points": &max_score,
+        "waypoints": &waypoints
     });
 
     let written = write_file(&for_drawer);
     if written.is_err() { panic!("\n❌ Error writing file"); }
     else { println!("\n✅ Full tree written in /tmp/alignment_tree.json ready for drawing"); }
-    // println!("\n\n{:?}\n\n", serde_json::to_string(&for_drawer).unwrap());
-
-    println!("\nMatrix size {} x {} = {}", m1, n1, m1*n1);
-    println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
-
-    if TREE_MODE {
-        recostruct_subproblems(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
-    } else {
-        recostruct_alignment(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
-    }
 
     (max_score, max_pos)
 }
