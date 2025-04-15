@@ -79,6 +79,9 @@ fn main() {
 // static X: &str = "CCTACA";
 // static Y: &str = "ACCTTCCATACCAGTCA";
 
+// thesis example fig 3.5
+// static X: &str = "CCTACA";
+// static Y: &str = "ACCTTCCTAAACAGTCA";
 
 /*
 
