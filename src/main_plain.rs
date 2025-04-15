@@ -128,11 +128,12 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
     println!("\nMatrix size {} x {} = {}", m1, n1, m1*n1);
     println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
 
-    let mut waypoints: Vec<(usize, usize)> = vec!();
+    let mut waypoints:Vec<((usize, usize), (usize, usize))> = vec!();
+    let mut fullpath:Vec<(usize, usize)> = vec!();
     if TREE_MODE {
         waypoints = recostruct_subproblems(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
     } else {
-        waypoints = recostruct_alignment(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
+        fullpath = recostruct_alignment(max_pos, &tree, seq1, seq2, m1, &HashMap::new());
     }
 
     let for_drawer = serde_json::json!({
@@ -142,7 +143,8 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
         "seq2": &seq2,
         "max_pos": &max_pos,
         "max_points": &max_score,
-        "waypoints": &waypoints
+        "waypoints": &waypoints,
+        "fullpath": &fullpath
     });
 
     let written = write_file(&for_drawer);

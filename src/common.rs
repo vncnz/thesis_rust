@@ -356,7 +356,7 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
     coords
 }
 
-pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<(usize, usize)> {
+pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<((usize, usize), (usize, usize))> {
     // !! Da testare e da modificare per la versione de-strings!
     // let seq1v: Vec<char> = seq1.chars().collect();
     // let seq2v: Vec<char> = seq2.chars().collect();
@@ -413,7 +413,7 @@ pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNo
         }
     }
 
-    coords
+    coords.windows(2).map(|w| (w[0], w[1])).collect()
 }
 
 
