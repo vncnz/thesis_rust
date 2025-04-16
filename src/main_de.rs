@@ -3,7 +3,7 @@ use memory_stats::memory_stats;
 // use cli_clipboard;
 
 #[path = "common.rs"] mod common;
-use common::{create_node, get_from_map, recostruct_alignment, recostruct_subproblems, tree_prune, write_file, TreeNode, TREE_MODE};
+use common::{create_node, get_from_map, print_hash_map, recostruct_alignment, recostruct_subproblems, tree_prune, write_file, TreeNode, TREE_MODE};
 
 fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize, Vec<usize>>) {
     let mut faked: String = String::new();
@@ -72,7 +72,9 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
 
     let mut lines_to_keep: Vec<usize> = Vec::new();
     let mut dont_skip: Vec<usize> = Vec::new();
-    for dep in dependences.values() {
+    for (_key, dep) in dependences.iter() {
+        // if !lines_to_keep.contains(key) { lines_to_keep.push(*key); }
+        // if !dont_skip.contains(key) { dont_skip.push(*key); }
         for d in dep {
             if !lines_to_keep.contains(d) { lines_to_keep.push(*d); }
             if !dont_skip.contains(d) { dont_skip.push(*d); }
@@ -119,7 +121,6 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
         }
 
         let points = std::cmp::max(0, get_from_map(&tree, &(j*m1 - m1)).points + gap);
-        create_node(j*m1, (j - 1)*m1, points, &mut tree);
         if j > 1 {
             tree_prune((j-1)*m1 - 1, &mut tree, &max_pos, &m1, &lines_to_keep, &dont_skip); // qui prune dell'ultimo elemento della riga appena abbandonata
         }
@@ -156,6 +157,7 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
             }
             println!("uprow indeces: {:?} with m1={}", uprow, m1);
         }
+        create_node(j*m1, uprow[0], points, &mut tree);
         for i in 1..m1 {
             // if j == 27 { println!("\nRow i={}", i); }
             
@@ -222,7 +224,7 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
                 }
             }
         }
-        // if j == 7 { print_hash_map(&tree); }
+        if j == 7 { print_hash_map(&tree); }
     }
 
     /* if tree.len() < 170 {

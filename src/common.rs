@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 // use std::fs;
 // use serde_json;
-// use itertools::Itertools;
+use itertools::Itertools;
 use colored::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-pub static TREE_MODE: bool = true;
+pub static TREE_MODE: bool = false;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TreeNode {
@@ -17,14 +17,14 @@ pub struct TreeNode {
     pub(crate) points: i32
 }
 
-/* pub fn print_hash_map(map: &HashMap<usize, TreeNode>) {
+pub fn print_hash_map(map: &HashMap<usize, TreeNode>) {
     // for (key, value) in &*map {
     for key in map.keys().sorted() {
         // println!("{:3} / {:?}", &key, &value);
         println!("{:3} / {:?}", &key, map[key]);
     }
     // map.clear();
-}
+}/*
 pub fn print_path_to_root_compressed(starting: usize, map: &HashMap<usize, TreeNode>) {
     let mut path = format!("{}", map[&starting].pos);
     let mut cnode = &map[&starting];
@@ -135,8 +135,12 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
         }
     }
 
-    if lines_to_keep.contains(&row) {
-        // println!("Don't delete {}, This line needs to be kept: {} {:?}", current_node, &row, &lines_to_keep);
+    let n: &mut TreeNode = get_mut_from_map(tree, &current_node);
+    if current_node == 63 {
+        println!("\n\n\nlines_to_keep: {:?}, dont_skip: {:?}, row: {}, parent {}, node {:?}", &lines_to_keep, &dont_skip, &row, &n.parent, &n);
+    }
+    if dont_skip.contains(&(&n.parent / m1)) {
+        println!("Don't delete {}, This line needs to be kept: {} {:?}", current_node, &row, &lines_to_keep);
         return;
     }
 
@@ -162,14 +166,11 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
 
     if current_node != *protected && children_num == 1 && current_node != 0 && !dont_skip.contains(&(current_node / m1)) {
         if TREE_MODE { // TODO: Can't recostruct alignment in this mode, ofc! Custom semi-recostruction needed
-            // println!("Exited on {} and I can work on this node to skip it?", current_node);
             //* In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
-            // La possiamo chiamare "tree mode". Occhio a non eliminare in caso di rientro da un'alternativa!
-            if !lines_to_keep.contains(&(current_node / m1)) {
-                skip_node(current_node, tree);
-            }
+            // La possiamo chiamare "tree mode".
+            skip_node(current_node, tree);
+            //}
         } else {
-            let n: &mut TreeNode = get_mut_from_map(tree, &current_node);
             let vmov0 = (current_node % m1 - n.parent % m1) as i64;
             let vmov1 = (n.children[0] % m1 - n.pos % m1) as i64;
             let hmov0 = (current_node / m1) as i64 - (n.parent / m1) as i64;
@@ -215,68 +216,6 @@ pub fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
     // Rimuoviamo il nodo corrente dall'albero
     tree.remove(&w);
 }
-
-/*
-pub fn print_alignment_DEPRECATED(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) {
-    let seq1v: Vec<char> = seq1.chars().collect();
-    let seq2v: Vec<char> = seq2.chars().collect();
-    let end_pos = (seq1v.len() + 1) * (seq2v.len() + 1) - 1;
-    // println!("end pos is {}", end_pos);
-    let mut a: String = "".to_owned();
-    let mut b: String = "".to_owned();
-    // let mut cnode = &map[&max_points_pos];
-    let mut cnode = &TreeNode { pos: end_pos, parent: max_points_pos, children: [].to_vec(), depth: 0, points: 0 };
-    if end_pos == max_points_pos {
-        cnode = get_from_map(map, &end_pos);
-    }
-    // println!("print_alignment {:?}", cnode);
-    while cnode.parent != cnode.pos {
-        // println!("print_alignment {:?}", cnode);
-        let mut p = cnode.pos;
-        while p > cnode.parent {
-            // let diff = &cnode.pos - &cnode.parent;
-            // let near = diff == m1 || diff == m1 - 1 || diff == 1;
-            let r = nodes_relationship(p, cnode.parent, m1);
-            assert!(r.v || r.h || r.d, "Wrong relationship between {} and {}", p, cnode.parent);
-
-            let mut row_shift = 1;
-            let j = p / m1;
-            if dependences.contains_key(&j) {
-                let deps = get_from_map(&dependences, &j);
-                println!("La riga {} è speciale: {:?}", j, deps);
-                match deps.len() {
-                    1 => {
-                        row_shift = j-deps[0];
-                    },
-                    _ => {
-
-                        // row_shift = j-deps[deps.len() - 1];
-                    }
-                }
-            }
-            if r.v {
-                p = p - m1*row_shift;
-                a.insert(0, '-');
-                b.insert(0, seq2v[(p / m1) as usize]);
-            }
-            else if r.h {
-                p = p - 1;
-                a.insert(0, seq1v[p % m1]);
-                b.insert(0, '-');
-            }
-            else if r.d {
-                p = p - m1*row_shift - 1;
-                a.insert(0, seq1v[p % m1]);
-                b.insert(0, seq2v[(p / m1) as usize]);
-            }
-        }
-        cnode = get_from_map(map, &cnode.parent); // &map[&cnode.parent];
-        // println!("{:?}", &cnode);
-    }
-    println!("{}", a);
-    println!("{}", b);
-}
-*/
 
 pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<(usize, usize)> {
     let seq1v: Vec<char> = seq1.chars().collect();
@@ -417,7 +356,11 @@ pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNo
         }
     }
 
-    coords.windows(2).map(|w| (w[0], w[1])).collect()
+    coords
+        .windows(2)
+        .map(|w| (w[0], w[1]))
+        .filter(|w| !dependences.contains_key(&w.1.1))
+        .collect()
 }
 
 

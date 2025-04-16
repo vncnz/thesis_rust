@@ -6,11 +6,7 @@ This is a private project.
 Install https://code.visualstudio.com/docs/languages/rust
 
 ## Known bug
-
-let x_sequence_str = "CCTACA";
-let y_sequence_str: &str = "ACCTTCCATACCAGTCA";
-
-Il nodo 7 risulta branching node perchè non viene rimosso 47 dalla lista dei suoi figli!
+- None
 
 
 ## TODOs
