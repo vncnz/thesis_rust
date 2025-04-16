@@ -6,7 +6,7 @@ use colored::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-pub static TREE_MODE: bool = false;
+pub static TREE_MODE: bool = true;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TreeNode {
@@ -164,8 +164,10 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
         if TREE_MODE { // TODO: Can't recostruct alignment in this mode, ofc! Custom semi-recostruction needed
             // println!("Exited on {} and I can work on this node to skip it?", current_node);
             //* In questo caso c'è un "cambio di direzione". Se eliminiamo questo nodo arriviamo alla versione solo albero, senza percorsi completi.
-            // La possiamo chiamare "tree mode"
-            skip_node(current_node, tree);
+            // La possiamo chiamare "tree mode". Occhio a non eliminare in caso di rientro da un'alternativa!
+            if !lines_to_keep.contains(&(current_node / m1)) {
+                skip_node(current_node, tree);
+            }
         } else {
             let n: &mut TreeNode = get_mut_from_map(tree, &current_node);
             let vmov0 = (current_node % m1 - n.parent % m1) as i64;
@@ -404,7 +406,9 @@ pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNo
 
     for window in coords[..coords.len().min(100)].windows(2) {
         let [couple0, couple1] = window else { continue };
-        if couple0.0 == couple1.0 {
+        if dependences.contains_key(&couple1.1) {
+            println!("{:?} / {:?} Skipping rectangle (alternatives skipping)", couple0, couple1);
+        } else if couple0.0 == couple1.0 {
             println!("{:?} / {:?} Same column (no computation needed)", couple0, couple1);
         } else if couple0.1 == couple1.1 {
             println!("{:?} / {:?} Same row (no computation needed)", couple0, couple1);

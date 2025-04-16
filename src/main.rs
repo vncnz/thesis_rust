@@ -31,8 +31,8 @@ fn main() {
     let y_sequence = read_fasta_sequence_solid(y_fasta_path).unwrap();
     let y_sequence_str: &str = &y_sequence;
 
-    let x_sequence_str = "CCTACA";
-    let y_sequence_str: &str = "ACCTTCCATACCAGTCA";
+    let x_sequence_str = "AAATTAGA";
+    let y_sequence_str: &str = "AAA[TTT|CC]AAATGGAAA";
 
     let (score, max_pos);
 

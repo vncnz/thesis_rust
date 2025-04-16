@@ -3,7 +3,7 @@ use memory_stats::memory_stats;
 // use cli_clipboard;
 
 #[path = "common.rs"] mod common;
-use common::{create_node, get_from_map, recostruct_alignment, tree_prune, write_file, TreeNode};
+use common::{create_node, get_from_map, recostruct_alignment, recostruct_subproblems, tree_prune, write_file, TreeNode, TREE_MODE};
 
 fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize, Vec<usize>>) {
     let mut faked: String = String::new();
@@ -240,9 +240,16 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
     } */
 
     println!("{} -> {} with dependences={:?} and dont_delete={:?}", seq, seq2, dependences, dont_skip);
+    println!("Matrix size {} x {} = {}", m1, n1, m1*n1);
+    println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
 
-    // println!("{:?}", serde_json::to_string(&tree).unwrap());
-    // println!("{:?}", serde_json::to_string(&dependences).unwrap());
+    let mut waypoints:Vec<((usize, usize), (usize, usize))> = vec!();
+    let mut fullpath:Vec<(usize, usize)> = vec!();
+    if TREE_MODE {
+        waypoints = recostruct_subproblems(max_pos, &tree, seq1, seq2, m1, &dependences);
+    } else {
+        fullpath = recostruct_alignment(max_pos, &tree, seq1, seq2, m1, &dependences);
+    }
 
     let for_drawer = serde_json::json!({
         "dependences": &dependences,
@@ -250,18 +257,15 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
         "seq1": &seq1,
         "seq2": &seq2,
         "max_pos": &max_pos,
-        "max_points": &max_score
+        "max_points": &max_score,
+        "waypoints": &waypoints,
+        "fullpath": &fullpath
     });
     
     // println!("\n\n{:?}\n\n", serde_json::to_string(&for_drawer).unwrap());
     let written = write_file(&for_drawer);
     if written.is_err() { panic!("\n❌ Error writing file"); }
     else { println!("\n✅ Full tree written in /tmp/alignment_tree.json ready for drawing"); }
-
-    println!("Matrix size {} x {} = {}", m1, n1, m1*n1);
-    println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
-
-    recostruct_alignment(max_pos, &tree, seq1, seq2, m1, &dependences);
 
     // cli_clipboard::set_contents(serde_json::to_string(&for_drawer).unwrap().to_owned()).unwrap();
 
