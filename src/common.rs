@@ -6,7 +6,7 @@ use colored::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-pub static TREE_MODE: bool = false;
+pub static TREE_MODE: bool = true;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TreeNode {
@@ -136,9 +136,6 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
     }
 
     let n: &mut TreeNode = get_mut_from_map(tree, &current_node);
-    if current_node == 63 {
-        println!("\n\n\nlines_to_keep: {:?}, dont_skip: {:?}, row: {}, parent {}, node {:?}", &lines_to_keep, &dont_skip, &row, &n.parent, &n);
-    }
     if dont_skip.contains(&(&n.parent / m1)) {
         println!("Don't delete {}, This line needs to be kept: {} {:?}", current_node, &row, &lines_to_keep);
         return;
