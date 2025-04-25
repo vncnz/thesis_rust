@@ -6,7 +6,7 @@ use colored::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-pub static TREE_MODE: bool = true;
+pub static TREE_MODE: bool = false;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TreeNode {
