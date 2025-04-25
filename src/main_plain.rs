@@ -122,7 +122,16 @@ pub fn build_tree(seq1: &str, seq2: &str, match_score: i32, mismatch: i32, gap: 
         // if j < 8 { print_hash_map(&tree); }
 
         // if j < 10 { print_hash_map(&tree); }
+    }
 
+    for i in 0..m1 {
+        let idx = (n1-1)*m1 + i;
+        let node = get_from_map(&tree, &idx);
+        let node_points = node.points;
+        if node_points > max_score {
+            max_score = node_points;
+            max_pos = idx;
+        }
     }
 
     println!("\nMatrix size {} x {} = {}", m1, n1, m1*n1);
