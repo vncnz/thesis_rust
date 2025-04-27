@@ -31,8 +31,16 @@ fn main() {
     let y_sequence = read_fasta_sequence_solid(y_fasta_path).unwrap();
     let y_sequence_str: &str = &y_sequence;
 
-    let x_sequence_str = "AAATTAGA";
-    let y_sequence_str: &str = "AAA[TTT|CC]AAATGGAAA";
+    // thesis example fig 3.2
+    // let y_sequence_str: &str = "CCTACA";
+    // let x_sequence_str: &str = "ACCTTCCATACCAGTCA";
+
+    // let x_sequence_str = "AAATTAGA";
+    // let y_sequence_str: &str = "AAA[TTT|CC]AAATGGAAA";
+
+    // For de-string creator (test)
+    let x_sequence_str = "AAAATTAGACCAATCG";
+    let y_sequence_str: &str = "AAAATTAAAACAATCG";
 
     let (score, max_pos);
 
