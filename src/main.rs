@@ -32,15 +32,19 @@ fn main() {
     let y_sequence_str: &str = &y_sequence;
 
     // thesis example fig 3.2
-    // let y_sequence_str: &str = "CCTACA";
-    // let x_sequence_str: &str = "ACCTTCCATACCAGTCA";
+    // let x_sequence_str: &str = "CCTACA";
+    // let y_sequence_str: &str = "ACCTTCCATACCAGTCA";
+
+    // thesis example fig 3.5
+    let y_sequence_str: &str = "CCTACA";
+    let x_sequence_str: &str = "ACCTTCCTAAACAGTCA";
 
     // let x_sequence_str = "AAATTAGA";
     // let y_sequence_str: &str = "AAA[TTT|CC]AAATGGAAA";
 
     // For de-string creator (test)
-    let x_sequence_str = "AAAATTAGACCAATCG";
-    let y_sequence_str: &str = "AAAATTAAAACAATCG";
+    // let x_sequence_str = "AAAATTAGACCAATCG";
+    // let y_sequence_str: &str = "AAAATTAAAACAATCG";
 
     let (score, max_pos);
 
@@ -86,10 +90,6 @@ fn main() {
 // thesis example fig 3.2
 // static X: &str = "CCTACA";
 // static Y: &str = "ACCTTCCATACCAGTCA";
-
-// thesis example fig 3.5
-// static X: &str = "CCTACA";
-// static Y: &str = "ACCTTCCTAAACAGTCA";
 
 /*
 
