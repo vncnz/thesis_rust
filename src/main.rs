@@ -54,6 +54,7 @@ fn main() {
         (score, max_pos) = main_de::build_tree(&x_sequence_str[0..], &y_sequence_str[0..], 1, -1, -1);
     } else {
         (score, max_pos) = main_plain::build_tree(&x_sequence_str[0..], &y_sequence_str[0..], 1, -1, -1);
+        // (score, max_pos) = main_plain::build_tree(&x_sequence_str[0..], &y_sequence_str[0..], 1, i32::MIN, 0);
     }
     // let (score, max_pos) = main_plain::build_tree(&X[0..], &Y[0..], 1, -1, -1);
     // let (score, max_pos) = main_de::build_tree(&X[0..], &Y[0..], 1, -1, -1);
