@@ -60,15 +60,15 @@ fn create_concatenated_alternatives_string (seq: &str) -> (String, HashMap<usize
 }
 
 
-pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
+pub fn build_tree(seq_s: &str, seq: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
 
     let (seqq, dependences) = create_concatenated_alternatives_string(seq);
-    let seq2 = &seqq;
+    let seq_t = &seqq;
 
-    let m = seq1.len();
-    let n = seq2.len();
-    let m1 = m + 1;
+    let n: usize = seq_s.len();
+    let m = seq_t.len();
     let n1 = n + 1;
+    let m1 = m + 1;
 
     let mut lines_to_keep: Vec<usize> = Vec::new();
     let mut dont_skip: Vec<usize> = Vec::new();
@@ -88,7 +88,7 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
     let mut max_pos = 0;
 
     // Inizializza il dict
-    let mut tree = HashMap::with_capacity(n * 2);
+    let mut tree = HashMap::with_capacity(m * 2);
     // create_node(0, 0, &mut tree);
     let node = TreeNode {
         pos: 0,
@@ -100,17 +100,17 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
     tree.insert(node.pos, node);
 
     // Inizializza la prima riga
-    for i in 1..m1 {
+    for i in 1..n1 {
         let points = 0; // std::cmp::max(0, get_from_map(&tree, &(i-1)).points + gap);
         create_node(i, i - 1, points, &mut tree);
     }
 
     let mut ratio: f64 = 100.0;
-    for j in 1..n1 {
+    for j in 1..m1 {
 
-        ratio = ((100 * tree.len() / (m1*j)) as f64).round();
-        if j % std::cmp::max(1 as usize, (n/20) as usize) == 0 {
-            println!("\nRow j={} ({}) tree is {}%", j, seq2.as_bytes()[j - 1] as char, ratio);
+        ratio = ((100 * tree.len() / (n1*j)) as f64).round();
+        if j % std::cmp::max(1 as usize, (m/20) as usize) == 0 {
+            println!("\nRow j={} ({}) tree is {}%", j, seq_t.as_bytes()[j - 1] as char, ratio);
 
             if let Some(usage) = memory_stats() {
                 println!("Current physical memory usage: {}", usage.physical_mem);
@@ -120,19 +120,19 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
             }
         }
 
-        let points = std::cmp::max(0, get_from_map(&tree, &(j*m1 - m1)).points + gap);
+        let points = std::cmp::max(0, get_from_map(&tree, &(j*n1 - n1)).points + gap);
         if j > 1 {
-            tree_prune((j-1)*m1 - 1, &mut tree, &max_pos, &m1, &lines_to_keep, &dont_skip); // qui prune dell'ultimo elemento della riga appena abbandonata
+            tree_prune((j-1)*n1 - 1, &mut tree, &max_pos, &n1, &lines_to_keep, &dont_skip); // qui prune dell'ultimo elemento della riga appena abbandonata
         }
 
-        let mut uprow: Vec<usize> = ((j-1)*m1 .. j*m1).collect();
+        let mut uprow: Vec<usize> = ((j-1)*n1 .. j*n1).collect();
         if dependences.contains_key(&j) {
             let deps = get_from_map(&dependences, &j);
             println!("La riga {} è speciale: {:?}", j, deps);
             match deps.len() {
                 1 => {
                     println!("Riga con una dipendenza unica: {}", deps[0]);
-                    uprow = (deps[0]*m1 .. (deps[0]+1)*m1).collect();
+                    uprow = (deps[0]*n1 .. (deps[0]+1)*n1).collect();
                     println!("lines_to_keep: {:?}", &lines_to_keep);
                 },
                 2 => {
@@ -142,32 +142,32 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
                     // * In questo caso il formato è [start, variant1, ..., variantN]
                     println!("Riga con più dipendenze: {:?}", deps);
                     uprow.clear();
-                    for i in 0..m1 {
+                    for i in 0..n1 {
                         let mut max = 1;
                         for d in 2..deps.len() {
-                            println!("Comparing {} ({}) with {} ({})", deps[d]*m1 + i, get_from_map(&tree, &(deps[d]*m1 + i)).points, deps[max]*m1 + i, get_from_map(&tree, &(deps[max]*m1 + i)).points);
-                            if get_from_map(&tree, &(deps[d]*m1 + i)).points > get_from_map(&tree, &(deps[max]*m1 + i)).points {
+                            println!("Comparing {} ({}) with {} ({})", deps[d]*n1 + i, get_from_map(&tree, &(deps[d]*n1 + i)).points, deps[max]*n1 + i, get_from_map(&tree, &(deps[max]*n1 + i)).points);
+                            if get_from_map(&tree, &(deps[d]*n1 + i)).points > get_from_map(&tree, &(deps[max]*n1 + i)).points {
                                 max = d;
                             }
                         }
-                        uprow.push(deps[max]*m1 + i);
+                        uprow.push(deps[max]*n1 + i);
                     }
                     // uprow = (deps[1]*m1 .. (deps[1]+1)*m1).collect();
                 }
             }
-            println!("uprow indeces: {:?} with m1={}", uprow, m1);
+            println!("uprow indeces: {:?} with m1={}", uprow, n1);
         }
-        create_node(j*m1, uprow[0], points, &mut tree);
-        for i in 1..m1 {
+        create_node(j*n1, uprow[0], points, &mut tree);
+        for i in 1..n1 {
             // if j == 27 { println!("\nRow i={}", i); }
             
-            let w: usize = j*m1 + i;
+            let w: usize = j*n1 + i;
             let wdiag: usize = uprow[i-1];
             let wup: usize = uprow[i];
             let wleft: usize = w - 1;
             // println!("w={} m1={} j={} i={}", w, &m1, &j, &i);
             let match_mismatch_delta_points = get_from_map(&tree, &wdiag).points
-                + if seq1.as_bytes()[i - 1] == seq2.as_bytes()[j - 1] { match_score }
+                + if seq_s.as_bytes()[i - 1] == seq_t.as_bytes()[j - 1] { match_score }
                   else { mismatch };
 
             // println!("w={}, wleft={}, wdiag={}, wtop={}", &w, &wleft, &wdiag, &wup);
@@ -190,16 +190,16 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
                 create_node(w, wup, delete, &mut tree);
             }
 
-            tree_prune(wdiag, &mut tree, &max_pos, &m1, &lines_to_keep, &dont_skip);
+            tree_prune(wdiag, &mut tree, &max_pos, &n1, &lines_to_keep, &dont_skip);
         }
 
-        let last_idx = j*m1 + m1 - 1;
+        let last_idx = j*n1 + n1 - 1;
 
         let last_node = get_from_map(&tree, &last_idx);
         let last_node_points = last_node.points;
         if last_node_points > max_score {
-            if max_pos > 0 && max_pos < (j-1)*m1 && last_node.children.len() == 0 {
-                tree_prune(max_pos, &mut tree, &((j+1)*m1 -1), &m1, &lines_to_keep, &dont_skip);
+            if max_pos > 0 && max_pos < (j-1)*n1 && last_node.children.len() == 0 {
+                tree_prune(max_pos, &mut tree, &((j+1)*n1 -1), &n1, &lines_to_keep, &dont_skip);
             }
             max_score = last_node_points;
             max_pos = last_idx;
@@ -217,9 +217,9 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
                 }
                 // This is a closing-alternative node, we can clean up all the previously blocked rows!
                 for d in deps {
-                    for i in 0..(m1-1) {
-                        let w = d*m1 + i;
-                        tree_prune(w, &mut tree, &max_pos, &m1, &lines_to_keep, &dont_skip);
+                    for i in 0..(n1-1) {
+                        let w = d*n1 + i;
+                        tree_prune(w, &mut tree, &max_pos, &n1, &lines_to_keep, &dont_skip);
                     }
                 }
             }
@@ -227,8 +227,8 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
         // if j == 7 { print_hash_map(&tree); }
     }
 
-    for i in 0..m1 {
-        let idx = (n1-1)*m1 + i;
+    for i in 0..n1 {
+        let idx = (m1-1)*n1 + i;
         let node = get_from_map(&tree, &idx);
         let node_points = node.points;
         if node_points > max_score {
@@ -251,23 +251,23 @@ pub fn build_tree(seq1: &str, seq: &str, match_score: i32, mismatch: i32, gap: i
         println!("\nPath from best score to root (w={})", max_pos);
     } */
 
-    println!("{} -> {} with dependences={:?} and dont_delete={:?}", seq, seq2, dependences, dont_skip);
-    println!("Matrix size {} x {} = {}", m1, n1, m1*n1);
+    println!("{} -> {} with dependences={:?} and dont_delete={:?}", seq, seq_t, dependences, dont_skip);
+    println!("Matrix size {} x {} = {}", n1, m1, n1*m1);
     println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
 
     let mut waypoints:Vec<((usize, usize), (usize, usize))> = vec!();
     let mut fullpath:Vec<(usize, usize)> = vec!();
     if TREE_MODE {
-        waypoints = recostruct_subproblems(max_pos, &tree, seq1, seq2, m1, &dependences);
+        waypoints = recostruct_subproblems(max_pos, &tree, seq_s, seq_t, n1, &dependences);
     } else {
-        fullpath = recostruct_alignment(max_pos, &tree, seq1, seq2, m1, &dependences);
+        fullpath = recostruct_alignment(max_pos, &tree, seq_s, seq_t, n1, &dependences);
     }
 
     let for_drawer = serde_json::json!({
         "dependences": &dependences,
         "tree": &tree,
-        "seq1": &seq1,
-        "seq2": &seq2,
+        "seq1": &seq_s,
+        "seq2": &seq_t,
         "max_pos": &max_pos,
         "max_points": &max_score,
         "waypoints": &waypoints,

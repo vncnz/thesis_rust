@@ -83,10 +83,10 @@ pub fn create_node(w: usize, parent: usize, points: i32, tree: &mut HashMap<usiz
     tree.insert(n.pos, n);
 }
 
-pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, m1: &usize, lines_to_keep: &Vec<usize>, dont_skip: &Vec<usize>) {
+pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, n1: &usize, lines_to_keep: &Vec<usize>, dont_skip: &Vec<usize>) {
     let mut current_node: usize = w;
     let mut children_num: usize = 100;
-    let mut row = &current_node / m1;
+    let mut row = &current_node / n1;
 
     // println!("tree_prune on {}", w);
 
@@ -128,7 +128,7 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
 
         // Se il genitore non ha più figli, proseguiamo potando il genitore
         current_node = parent_id;
-        row = current_node / m1;
+        row = current_node / n1; // TODO: row è necessaria??
 
         if children_num > 0 {
             break;
@@ -136,22 +136,22 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
     }
 
     let n: &mut TreeNode = get_mut_from_map(tree, &current_node);
-    if dont_skip.contains(&(&n.parent / m1)) {
+    if dont_skip.contains(&(&n.parent / n1)) {
         println!("Don't delete {}, This line needs to be kept: {} {:?}", current_node, &row, &lines_to_keep);
         return;
     }
 
-    if current_node != *protected && children_num == 1 && current_node != 0 && !dont_skip.contains(&(current_node / m1)) {
+    if current_node != *protected && children_num == 1 && current_node != 0 && !dont_skip.contains(&(current_node / n1)) {
         if TREE_MODE {
             //* Se eliminiamo questo nodo indipendentemente dall'eventuale cambio direzione arriviamo alla versione solo albero, senza percorsi completi.
             // La possiamo chiamare "tree mode".
             skip_node(current_node, tree);
             //}
         } else {
-            let vmov0 = (current_node % m1 - n.parent % m1) as i64;
-            let vmov1 = (n.children[0] % m1 - n.pos % m1) as i64;
-            let hmov0 = (current_node / m1) as i64 - (n.parent / m1) as i64;
-            let hmov1 = (n.children[0] / m1) as i64 - (n.pos / m1) as i64;
+            let vmov0 = (current_node % n1 - n.parent % n1) as i64;
+            let vmov1 = (n.children[0] % n1 - n.pos % n1) as i64;
+            let hmov0 = (current_node / n1) as i64 - (n.parent / n1) as i64;
+            let hmov1 = (n.children[0] / n1) as i64 - (n.pos / n1) as i64;
             let diag = hmov0 == vmov0 && hmov1 == vmov1;
             let left = hmov0 == 0 && hmov1 == 0;
             let up = vmov0 == 0 && vmov1 == 0;
