@@ -84,18 +84,18 @@ pub fn create_node(w: usize, parent: usize, points: i32, tree: &mut HashMap<usiz
 }
 
 pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, n1: &usize, lines_to_keep: &Vec<usize>, dont_skip: &Vec<usize>) {
-    let mut current_node: usize = w;
+    let mut current_id: usize = w;
     let mut children_num: usize = 100;
-    let mut row = &current_node / n1;
+    let mut row = &current_id / n1;
 
     // println!("tree_prune on {}", w);
 
-    while current_node != *protected && !lines_to_keep.contains(&row) {
+    while current_id != *protected && !lines_to_keep.contains(&row) {
         let parent_id;
 
         // Primo riferimento mutabile: recuperiamo il nodo corrente
         {
-            let n: &mut TreeNode = get_mut_from_map(tree, &current_node); // tree.get_mut(&current_node).expect(&format!("Key not found in tree: {}", current_node));
+            let n: &mut TreeNode = get_mut_from_map(tree, &current_id); // tree.get_mut(&current_node).expect(&format!("Key not found in tree: {}", current_node));
             // println!("      working on {:?}", n);
 
             // Se il nodo ha figli, non facciamo nulla e interrompiamo il ciclo
@@ -114,7 +114,7 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
             let p: &mut TreeNode = get_mut_from_map(tree, &parent_id); // tree.get_mut(&parent_id).expect(&format!("Key not found in tree: {}", parent_id));
             
             // Rimuoviamo il nodo corrente dalla lista dei figli del genitore
-            if let Some(pos) = p.children.iter().position(|x: &usize| *x == current_node) {
+            if let Some(pos) = p.children.iter().position(|x: &usize| *x == current_id) {
                 p.children.swap_remove(pos);
             }
 
@@ -122,42 +122,42 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
             children_num = p.children.len();
 
             // Rimuoviamo il nodo corrente dall'albero
-            tree.remove(&current_node);
+            tree.remove(&current_id);
             // println!("Elimino elemento {}", &current_node);
         }
 
         // Se il genitore non ha più figli, proseguiamo potando il genitore
-        current_node = parent_id;
-        row = current_node / n1; // TODO: row è necessaria??
+        current_id = parent_id;
+        row = current_id / n1;
 
         if children_num > 0 {
             break;
         }
     }
 
-    let n: &mut TreeNode = get_mut_from_map(tree, &current_node);
+    let n: &mut TreeNode = get_mut_from_map(tree, &current_id);
     if dont_skip.contains(&(&n.parent / n1)) {
-        println!("Don't delete {}, This line needs to be kept: {} {:?}", current_node, &row, &lines_to_keep);
+        println!("Don't delete {}, This line needs to be kept: {} {:?}", current_id, &row, &lines_to_keep);
         return;
     }
 
-    if current_node != *protected && children_num == 1 && current_node != 0 && !dont_skip.contains(&(current_node / n1)) {
+    if current_id != *protected && children_num == 1 && current_id != 0 && !dont_skip.contains(&(current_id / n1)) {
         if TREE_MODE {
             //* Se eliminiamo questo nodo indipendentemente dall'eventuale cambio direzione arriviamo alla versione solo albero, senza percorsi completi.
             // La possiamo chiamare "tree mode".
-            skip_node(current_node, tree);
+            skip_node(current_id, tree);
             //}
         } else {
-            let vmov0 = (current_node % n1 - n.parent % n1) as i64;
+            let vmov0 = (current_id % n1 - n.parent % n1) as i64;
             let vmov1 = (n.children[0] % n1 - n.pos % n1) as i64;
-            let hmov0 = (current_node / n1) as i64 - (n.parent / n1) as i64;
+            let hmov0 = (current_id / n1) as i64 - (n.parent / n1) as i64;
             let hmov1 = (n.children[0] / n1) as i64 - (n.pos / n1) as i64;
             let diag = hmov0 == vmov0 && hmov1 == vmov1;
             let left = hmov0 == 0 && hmov1 == 0;
             let up = vmov0 == 0 && vmov1 == 0;
             if diag || left || up {
                 // println!("Exited on {} and I can skip it (diag [to be extended]) {:?}", current_node, n);
-                skip_node(current_node, tree);
+                skip_node(current_id, tree);
             }
         }
     } // Questo abilita la "nuova versione"
@@ -194,10 +194,10 @@ pub fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
     tree.remove(&w);
 }
 
-pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<(usize, usize)> {
-    let seq1v: Vec<char> = seq1.chars().collect();
-    let seq2v: Vec<char> = seq2.chars().collect();
-    let end_pos = (seq1v.len() + 1) * (seq2v.len() + 1) - 1;
+pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq_s: &str, seq_t: &str, n1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<(usize, usize)> {
+    let vec_s: Vec<char> = seq_s.chars().collect();
+    let vec_t: Vec<char> = seq_t.chars().collect();
+    let end_pos = (vec_s.len() + 1) * (vec_t.len() + 1) - 1;
     // println!("end pos is {}", end_pos);
     let mut a: String = "".to_owned();
     let mut b: String = "".to_owned();
@@ -207,26 +207,26 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
         cnode = get_from_map(map, &end_pos);
     }
 
-    let mut hmov = cnode.pos % m1 != cnode.parent % m1;
-    let mut vmov = cnode.pos / m1 != cnode.parent / m1;
+    let mut hmov = cnode.pos % n1 != cnode.parent % n1;
+    let mut vmov = cnode.pos / n1 != cnode.parent / n1;
     let mut p = cnode.pos;
     let mut parent = cnode.parent;
 
     let mut coords = vec![];
 
-    let mut ssafe = seq1.len() * seq2.len() + 3;
+    let mut ssafe = seq_s.len() * seq_t.len() + 3;
     while ssafe > 0 && p > 0 {
         // println!("\n   ssafe={} p={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1, &cnode);
         ssafe -= 1;
 
         // println!("Indeces x={} ({}) y={} ({})", p%m1, seq1v[p%m1 -1], p/m1, seq2v[p/m1 -1]);
-        if vmov { b.insert(0, seq2v[(p / m1 -1) as usize]); }
+        if vmov { b.insert(0, vec_t[(p / n1 -1) as usize]); }
         else { b.insert(0, '-'); }
 
-        if hmov { a.insert(0, seq1v[p % m1 -1]); }
+        if hmov { a.insert(0, vec_s[p % n1 -1]); }
         else { a.insert(0, '-'); }
 
-        let row_number = p / m1;
+        let row_number = p / n1;
         
         if dependences.contains_key(&(row_number)) { // && get_from_map(&dependences, &row_number).len() == 1 {
             /* let v = get_from_map(&dependences, &row_number);
@@ -241,18 +241,18 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
             // println!("{} for row_number {} {:?}", "Using parent".yellow(), &row_number, &dependences);
         } else {
             // println!("{}", "NOT using parent".cyan());
-            if vmov  { p = p - m1; }
+            if vmov  { p = p - n1; }
             if hmov { p = p - 1; }
         }
 
-        coords.push((p % m1, p / m1));
+        coords.push((p % n1, p / n1));
 
         if &p == &parent {
             cnode = get_from_map(map, &p);
             parent = cnode.parent;
             // println!("p={} parent={} node={:?}", &p, &parent, &cnode);
-            hmov = p % m1 != parent % m1;
-            vmov = p / m1 != parent / m1;
+            hmov = p % n1 != parent % n1;
+            vmov = p / n1 != parent / n1;
         }
         // println!("{}", a);
         // println!("{}", b);
@@ -274,12 +274,9 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
     coords
 }
 
-pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq1: &str, seq2: &str, m1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<((usize, usize), (usize, usize))> {
+pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq_s: &str, seq_t: &str, n1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<((usize, usize), (usize, usize))> {
     // !! Da testare e da modificare per la versione de-strings!
-    // let seq1v: Vec<char> = seq1.chars().collect();
-    // let seq2v: Vec<char> = seq2.chars().collect();
-    let end_pos = (seq1.len() + 1) * (seq2.len() + 1) - 1;
-    // println!("end pos is {}", end_pos);
+    let end_pos = (seq_s.len() + 1) * (seq_t.len() + 1) - 1;
 
     let mut cnode = &TreeNode { pos: end_pos, parent: max_points_pos, children: [].to_vec(), depth: 0, points: 0 };
     if end_pos == max_points_pos {
@@ -291,16 +288,16 @@ pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNo
 
     let mut coords = vec![];
 
-    let mut ssafe = seq1.len() * seq2.len() + 3;
+    let mut ssafe = seq_s.len() * seq_t.len() + 3;
 
-    coords.push((end_pos % m1, end_pos / m1));
+    coords.push((end_pos % n1, end_pos / n1));
 
     while ssafe > 0 && pos > 0 {
         // println!("\n   ssafe={} p={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1, &cnode);
         ssafe -= 1;
 
-        let hparent = parent % m1;
-        let vparent = parent / m1;
+        let hparent = parent % n1;
+        let vparent = parent / n1;
 
         coords.push((hparent, vparent));
 
