@@ -275,7 +275,7 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
 }
 
 pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq_s: &str, seq_t: &str, n1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<((usize, usize), (usize, usize))> {
-    // !! Da testare e da modificare per la versione de-strings!
+    // !! Da testare per la versione de-strings!
     let end_pos = (seq_s.len() + 1) * (seq_t.len() + 1) - 1;
 
     let mut cnode = &TreeNode { pos: end_pos, parent: max_points_pos, children: [].to_vec(), depth: 0, points: 0 };
