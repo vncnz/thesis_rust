@@ -271,7 +271,8 @@ pub fn build_tree(seq_s: &str, seq: &str, match_score: i32, mismatch: i32, gap: 
         "max_pos": &max_pos,
         "max_points": &max_score,
         "waypoints": &waypoints,
-        "fullpath": &fullpath
+        "fullpath": &fullpath,
+        "treemode": &TREE_MODE
     });
     
     // println!("\n\n{:?}\n\n", serde_json::to_string(&for_drawer).unwrap());

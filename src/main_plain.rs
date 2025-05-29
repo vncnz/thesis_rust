@@ -153,7 +153,8 @@ pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap
         "max_pos": &max_pos,
         "max_points": &max_score,
         "waypoints": &waypoints,
-        "fullpath": &fullpath
+        "fullpath": &fullpath,
+        "treemode": &TREE_MODE
     });
 
     let written = write_file(&for_drawer);
