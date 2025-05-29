@@ -264,6 +264,8 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
 
     coords.reverse();
 
+    // println!("{:?}", coords.iter().map(|x| { x.1 * n1 + x.0 }).collect::<Vec<(usize)>>());
+
     println!("\n\n{}", "Alignment completed".green());
     // println!("{:?}", coords);
     if a.len() < 50 {
@@ -293,11 +295,12 @@ pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNo
     coords.push((end_pos % n1, end_pos / n1));
 
     while ssafe > 0 && pos > 0 {
-        // println!("\n   ssafe={} p={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1, &cnode);
         ssafe -= 1;
 
         let hparent = parent % n1;
         let vparent = parent / n1;
+
+        // println!("par={} ({},{})   pos={} ({},{})  cnode={:?}", &pos, pos%n1, pos/n1, &parent, &hparent, &vparent, &cnode);
 
         coords.push((hparent, vparent));
 
@@ -316,6 +319,13 @@ pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNo
 
     println!("\n\n{}", "Alignment completed".green());
     println!("{:?}", coords);
+    println!("{:?}", coords.iter().map(|x| { x.1 * n1 + x.0 }).collect::<Vec<(usize)>>());
+
+    println!("{} (len {})", &seq_s, seq_s.len());
+    println!("{} (len {})", &seq_t, seq_t.len());
+
+    let mut s = "".to_string();
+    let mut t = "".to_string();
 
     for window in coords[..coords.len().min(100)].windows(2) {
         let [couple0, couple1] = window else { continue };
@@ -323,11 +333,35 @@ pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNo
             println!("{:?} / {:?} Skipping rectangle (alternatives skipping)", couple0, couple1);
         } else if couple0.0 == couple1.0 {
             println!("{:?} / {:?} Same column (no computation needed)", couple0, couple1);
+            for x in couple0.1..couple1.1 {
+                s += "-";
+                t += seq_t.chars().nth(x).unwrap().to_string().as_str();
+            }
         } else if couple0.1 == couple1.1 {
             println!("{:?} / {:?} Same row (no computation needed)", couple0, couple1);
+            for x in couple0.0..couple1.0 {
+                s += seq_s.chars().nth(x).unwrap().to_string().as_str();
+                t += "-";
+            }
         } else {
-            println!("{:?} / {:?} Submatrix (to be computed {} elements)", couple0, couple1, (couple1.0 - couple0.0) * (couple1.1 - couple0.1));
+            println!("{:?} / {:?} Submatrix (to be computed {} elements)", couple0, couple1, (couple1.0 - couple0.0 + 1) * (couple1.1 - couple0.1 + 1));
+            s += "[";
+            for x in couple0.0..couple1.0 {
+                s += seq_s.chars().nth(x).unwrap().to_string().as_str();
+            }
+            s += "]";
+            t += "[";
+            for x in couple0.1..couple1.1 {
+                t += seq_t.chars().nth(x).unwrap().to_string().as_str();
+            }
+            t += "]";
+
         }
+    }
+
+    if s.len() < 50 && t.len() < 50 {
+        println!("{}", &s);
+        println!("{}", &t);
     }
 
     coords
