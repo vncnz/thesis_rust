@@ -39,9 +39,9 @@ fn main() {
     let x_sequence_str: &str = "CCTACA";
     let y_sequence_str: &str = "ACCTTCCATACCAGTCA";
 
-    // thesis example fig 3.5
-    // let y_sequence_str: &str = "CCTACA";
-    // let x_sequence_str: &str = "ACCTTCCTAAACAGTCA";
+    // thesis example fig 3.5, fig 3.6
+    let x_sequence_str: &str = "CCTACA";
+    let y_sequence_str: &str = "ACCTTCCTAAACAGTCA";
 
     // let x_sequence_str = "AAATTAGA";
     // let y_sequence_str: &str = "AAA[TTT|CC]AAATGGAAA";
