@@ -148,6 +148,7 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
             skip_node(current_id, tree);
             //}
         } else {
+            // * Eliminiamo il nodo solo se il genitore e il figlio sono nella stessa colonna e nella stessa riga
             let vmov0 = (current_id % n1 - n.parent % n1) as i64;
             let vmov1 = (n.children[0] % n1 - n.pos % n1) as i64;
             let hmov0 = (current_id / n1) as i64 - (n.parent / n1) as i64;
@@ -160,7 +161,7 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
                 skip_node(current_id, tree);
             }
         }
-    } // Questo abilita la "nuova versione"
+    } // Questo if abilita la "seconda ottimizzazione", se lo togliamo ottiamo percorsi con tutti i nodi
 }
 
 pub fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
