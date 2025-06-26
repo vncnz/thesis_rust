@@ -84,19 +84,16 @@ pub fn create_node(w: usize, parent: usize, points: i32, tree: &mut HashMap<usiz
 }
 
 pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, n1: &usize, lines_to_keep: &Vec<usize>, dont_skip: &Vec<usize>) {
+
     let mut current_id: usize = w;
     let mut children_num: usize = 100;
     let mut row = &current_id / n1;
 
-    // println!("tree_prune on {}", w);
-
     while current_id != *protected && !lines_to_keep.contains(&row) {
         let parent_id;
 
-        // Primo riferimento mutabile: recuperiamo il nodo corrente
         {
-            let n: &mut TreeNode = get_mut_from_map(tree, &current_id); // tree.get_mut(&current_node).expect(&format!("Key not found in tree: {}", current_node));
-            // println!("      working on {:?}", n);
+            let n: &mut TreeNode = get_mut_from_map(tree, &current_id);
 
             // Se il nodo ha figli, non facciamo nulla e interrompiamo il ciclo
             if n.children.len() > 0 {
@@ -104,26 +101,24 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
                 break;
             }
 
-            // Altrimenti, raccogliamo le informazioni sul nodo corrente
+            // Altrimenti, ci salviamo il nodo del parent e continuiamo
             parent_id = n.parent;
         }
 
-        // let children_num: usize;
         {
             // Recuperiamo il genitore del nodo corrente
-            let p: &mut TreeNode = get_mut_from_map(tree, &parent_id); // tree.get_mut(&parent_id).expect(&format!("Key not found in tree: {}", parent_id));
+            let p: &mut TreeNode = get_mut_from_map(tree, &parent_id);
             
             // Rimuoviamo il nodo corrente dalla lista dei figli del genitore
             if let Some(pos) = p.children.iter().position(|x: &usize| *x == current_id) {
                 p.children.swap_remove(pos);
             }
 
-            // Verifichiamo se il genitore ha altri figli
+            // Recuperiamo il numero di figli del padre
             children_num = p.children.len();
 
             // Rimuoviamo il nodo corrente dall'albero
             tree.remove(&current_id);
-            // println!("Elimino elemento {}", &current_node);
         }
 
         // Se il genitore non ha più figli, proseguiamo potando il genitore
