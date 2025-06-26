@@ -35,18 +35,22 @@ pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap
     }
 
     let mut ratio: f64 = 100.0;
+    let mut max_nodes = 0;
     for j in 1..m1 {
 
-        ratio = (100.0 * (tree.len() as f64) / ((n1*j) as f64)) as f64;
+        let tree_len = tree.len();
+        if tree_len > max_nodes { max_nodes = tree_len; }
+        ratio = (100.0 * (tree_len as f64) / ((n1*j) as f64)) as f64;
         if j % std::cmp::max(1 as usize, (m/20) as usize) == 0 {
-            println!("\nRow j={} ({}) tree is {}%", j, seq_t.as_bytes()[j - 1] as char, ratio.round());
+            println!("Row j={} ({}) tree has {} nodes ({}%)", j, seq_t.as_bytes()[j - 1] as char, tree_len, (ratio * 100.).round() / 100.);
 
-            if let Some(usage) = memory_stats() {
+            // Prints out memory consumption
+            /* if let Some(usage) = memory_stats() {
                 println!("Current physical memory usage: {}", usage.physical_mem);
                 println!("Current virtual memory usage: {}", usage.virtual_mem);
             } else {
                 println!("Couldn't get the current memory usage :(");
-            }
+            } */
         }
 
         let points = std::cmp::max(0, get_from_map(&tree, &(j*n1 - n1)).points + gap);
@@ -136,6 +140,7 @@ pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap
 
     println!("\nMatrix size {} x {} = {}", n1, m1, n1*m1);
     println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
+    // println!("Max tree size before computing last row was {}", max_nodes);
 
     let mut waypoints:Vec<((usize, usize), (usize, usize))> = vec!();
     let mut fullpath:Vec<(usize, usize)> = vec!();

@@ -233,8 +233,6 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
             hmov = p % n1 != parent % n1;
             vmov = p / n1 != parent / n1;
         }
-        // println!("{}", a);
-        // println!("{}", b);
     }
 
     if ssafe == 0 {
@@ -252,11 +250,12 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
         println!("{}", b);
     }
 
+    // Restituisco la lista di coordinate dei nodi del percorso
     coords
 }
 
 pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq_s: &str, seq_t: &str, n1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<((usize, usize), (usize, usize))> {
-    // !! Da testare per la versione de-strings!
+    // ! Da verificare meglio per la versione de-strings!
     let end_pos = (seq_s.len() + 1) * (seq_t.len() + 1) - 1;
 
     let mut cnode = &TreeNode { pos: end_pos, parent: max_points_pos, children: [].to_vec(), depth: 0, points: 0 };
@@ -286,8 +285,6 @@ pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNo
         cnode = get_from_map(map, &parent);
         pos = cnode.pos;
         parent = cnode.parent;
-        // println!("{}", a);
-        // println!("{}", b);
     }
 
     if ssafe == 0 {
