@@ -136,14 +136,14 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
         return;
     }
 
+    // Questo if abilita la "seconda ottimizzazione", se lo togliamo otteniamo percorsi con tutti i nodi intermedi
     if current_id != *protected && children_num == 1 && current_id != 0 && !dont_skip.contains(&(current_id / n1)) {
         if TREE_MODE {
-            //* Se eliminiamo questo nodo indipendentemente dall'eventuale cambio direzione arriviamo alla versione solo albero, senza percorsi completi.
-            // La possiamo chiamare "tree mode".
+            // Se eliminiamo questo nodo indipendentemente dall'eventuale cambio direzione arriviamo alla versione solo albero, senza percorsi completi.
             skip_node(current_id, tree);
             //}
         } else {
-            // * Eliminiamo il nodo solo se il genitore e il figlio sono nella stessa colonna e nella stessa riga
+            // In questo caso eliminiamo il nodo solo se il genitore e il figlio sono nella stessa colonna e nella stessa riga
             let vmov0 = (current_id % n1 - n.parent % n1) as i64;
             let vmov1 = (n.children[0] % n1 - n.pos % n1) as i64;
             let hmov0 = (current_id / n1) as i64 - (n.parent / n1) as i64;
@@ -152,52 +152,43 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
             let left = hmov0 == 0 && hmov1 == 0;
             let up = vmov0 == 0 && vmov1 == 0;
             if diag || left || up {
-                // println!("Exited on {} and I can skip it (diag [to be extended]) {:?}", current_node, n);
                 skip_node(current_id, tree);
             }
         }
-    } // Questo if abilita la "seconda ottimizzazione", se lo togliamo ottiamo percorsi con tutti i nodi
+    }
 }
 
 pub fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
-    // return;
-    // println!("Skipping node {}", &w);
 
     let w0: usize;
     let w2: usize;
 
-    {
-        let n: &mut TreeNode = get_mut_from_map(tree, &w);
-        w0 = n.parent;
-        w2 = n.children[0];
+    // Recuperiamo i nodi di nodo genitore e nodo figlio (unico)
+    let n: &mut TreeNode = get_mut_from_map(tree, &w);
+    w0 = n.parent;
+    w2 = n.children[0];
+    let n0: &mut TreeNode = get_mut_from_map(tree, &w0);
+
+    // Sostituiamo il nodo corrente dalla lista dei figli del genitore
+    if let Some(pos) = n0.children.iter().position(|x: &usize| *x == w) {
+        n0.children[pos] = w2;
     }
 
-    {
-        let n0: &mut TreeNode = get_mut_from_map(tree, &w0);
-
-        // Sostituiamo il nodo corrente dalla lista dei figli del genitore
-        if let Some(pos) = n0.children.iter().position(|x: &usize| *x == w) {
-            n0.children[pos] = w2;
-        }
-    }
-
-    {
-        let n2: &mut TreeNode = get_mut_from_map(tree, &w2);
-        n2.parent = w0;
-    }
+    // Nel nodo "nipote" sostituiamo il genitore mettendoci il "nonno"
+    let n2: &mut TreeNode = get_mut_from_map(tree, &w2);
+    n2.parent = w0;
 
     // Rimuoviamo il nodo corrente dall'albero
     tree.remove(&w);
 }
 
 pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq_s: &str, seq_t: &str, n1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<(usize, usize)> {
+
     let vec_s: Vec<char> = seq_s.chars().collect();
     let vec_t: Vec<char> = seq_t.chars().collect();
     let end_pos = (vec_s.len() + 1) * (vec_t.len() + 1) - 1;
-    // println!("end pos is {}", end_pos);
     let mut a: String = "".to_owned();
     let mut b: String = "".to_owned();
-    // let mut cnode = &map[&max_points_pos];
     let mut cnode = &TreeNode { pos: end_pos, parent: max_points_pos, children: [].to_vec(), depth: 0, points: 0 };
     if end_pos == max_points_pos {
         cnode = get_from_map(map, &end_pos);
@@ -224,16 +215,8 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
 
         let row_number = p / n1;
         
-        if dependences.contains_key(&(row_number)) { // && get_from_map(&dependences, &row_number).len() == 1 {
-            /* let v = get_from_map(&dependences, &row_number);
-            if v.len() == 1 {
-                let oldp = p;
-                p = (get_from_map(&dependences, &row_number)[0]* m1) + (p % m1);
-                println!("Teleporting p from {} to {}", oldp, p);
-            } else {
-                p = cnode.parent; // * In fase di costruzione albero mi garantisco la presenza di un nodo nell'ultima riga dell'alternativa scelta
-            } */
-            p = cnode.parent; // * In fase di costruzione albero mi garantisco la presenza di un nodo nell'ultima riga dell'alternativa scelta
+        if dependences.contains_key(&(row_number)) {
+            p = cnode.parent; // In fase di costruzione albero mi garantisco la presenza di un nodo nell'ultima riga dell'alternativa scelta
             // println!("{} for row_number {} {:?}", "Using parent".yellow(), &row_number, &dependences);
         } else {
             // println!("{}", "NOT using parent".cyan());
