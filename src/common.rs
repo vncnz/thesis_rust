@@ -215,9 +215,9 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
 
         let row_number = p / n1;
         
-        if dependences.contains_key(&(row_number)) {
+        if dependences.contains_key(&(row_number)) && get_from_map(&dependences, &row_number).len() > 1 {
             p = cnode.parent; // In fase di costruzione albero mi garantisco la presenza di un nodo nell'ultima riga dell'alternativa scelta
-            // println!("{} for row_number {} {:?}", "Using parent".yellow(), &row_number, &dependences);
+            // println!("{} for row_number {}, p is {}, cnode is {:?}, dependences is {:?}", "Using parent".yellow(), &row_number, &p, &cnode, &dependences);
         } else {
             // println!("{}", "NOT using parent".cyan());
             if vmov  { p = p - n1; }
