@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use memory_stats::memory_stats;
+// use memory_stats::memory_stats;
 
 #[path = "common.rs"] mod common;
 use common::{create_node, get_from_map, recostruct_alignment, recostruct_subproblems, tree_prune, write_file, TreeNode, TREE_MODE};
@@ -73,15 +73,6 @@ pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap
             let delete = get_from_map(&tree, &wup).points + gap;
             let insert = get_from_map(&tree, &wleft).points + gap;
 
-            /* if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
-                create_node(w, wdiag, match_mismatch_delta_points, &mut tree);
-                // L'elemento in diagonale ovviamente non è leaf ma per la versione con percorsi compressi ci serve comunque valutarla!
-            } else if delete > insert { // * Preferiamo il movimento orizzontale! ... appunto, mica è questo -.-'
-                create_node(w, wup, delete, &mut tree);
-            } else {
-                create_node(w, wleft, insert, &mut tree);
-            } */
-
             if insert >= match_mismatch_delta_points && insert >= delete {    // * Preferiamo il movimento orizzontale!
                 create_node(w, wleft, insert, &mut tree);
             } else if match_mismatch_delta_points >= delete {                // * In alternativa, il diagonale
@@ -91,10 +82,6 @@ pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap
             }
            
             tree_prune(wdiag, &mut tree, &max_pos, &n1, &Vec::new(), &Vec::new()); // prune dell'elemento in diagonale
-
-            // dp[1][j] = std::cmp::max(match_mismatch_delta_points, std::cmp::max(delete, std::cmp::max(insert, 0)));
-
-            // Traccia il punteggio massimo e la sua posizione
 
             /* if w == 81 || w == 82 {
                 let for_drawer = serde_json::json!({
@@ -113,19 +100,13 @@ pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap
         let last_node = get_from_map(&tree, &last_idx);
         let last_node_points = last_node.points;
         if last_node_points > max_score {
-            // println!("Il nuovo nodo {} (punti {}) rimpiazza {} (punti {})?. Elimino il vecchio?", last_idx, last_node_points, max_pos, max_score);
             if max_pos > 0 && max_pos < (j-1)*n1 && last_node.children.len() == 0 {
-                // println!("sì");
                 tree_prune(max_pos, &mut tree, &((j+1)*n1 -1), &n1, &Vec::new(), &Vec::new());
-            } else {
-                // println!("no (max_pos={} j={}/m1={})", max_pos, j, m1);
             }
             max_score = last_node_points;
             max_pos = last_idx;
         }
-        // if j < 8 { print_hash_map(&tree); }
 
-        // if j < 10 { print_hash_map(&tree); }
     }
 
     for i in 0..n1 {

@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use memory_stats::memory_stats;
+// use memory_stats::memory_stats;
 // use cli_clipboard;
 
 #[path = "common.rs"] mod common;
@@ -66,7 +66,7 @@ pub fn build_tree(seq_s: &str, seq: &str, match_score: i32, mismatch: i32, gap: 
     let seq_t = &seqq;
 
     let n: usize = seq_s.len();
-    let m = seq_t.len();
+    let m: usize = seq_t.len();
     let n1 = n + 1;
     let m1 = m + 1;
 
@@ -106,18 +106,22 @@ pub fn build_tree(seq_s: &str, seq: &str, match_score: i32, mismatch: i32, gap: 
     }
 
     let mut ratio: f64 = 100.0;
+    let mut max_nodes = 0;
     for j in 1..m1 {
 
-        ratio = ((100 * tree.len() / (n1*j)) as f64).round();
+        let tree_len = tree.len();
+        if tree_len > max_nodes { max_nodes = tree_len; }
+        ratio = (100.0 * (tree_len as f64) / ((n1*j) as f64)) as f64;
         if j % std::cmp::max(1 as usize, (m/20) as usize) == 0 {
-            println!("\nRow j={} ({}) tree is {}%", j, seq_t.as_bytes()[j - 1] as char, ratio);
+            println!("Row j={} ({}) tree has {} nodes ({}%)", j, seq_t.as_bytes()[j - 1] as char, tree_len, (ratio * 100.).round() / 100.);
 
-            if let Some(usage) = memory_stats() {
+            // Prints out memory consumption
+            /* if let Some(usage) = memory_stats() {
                 println!("Current physical memory usage: {}", usage.physical_mem);
                 println!("Current virtual memory usage: {}", usage.virtual_mem);
             } else {
                 println!("Couldn't get the current memory usage :(");
-            }
+            } */
         }
 
         let points = std::cmp::max(0, get_from_map(&tree, &(j*n1 - n1)).points + gap);
@@ -170,18 +174,9 @@ pub fn build_tree(seq_s: &str, seq: &str, match_score: i32, mismatch: i32, gap: 
                 + if seq_s.as_bytes()[i - 1] == seq_t.as_bytes()[j - 1] { match_score }
                   else { mismatch };
 
-            // println!("w={}, wleft={}, wdiag={}, wtop={}", &w, &wleft, &wdiag, &wup);
             let delete = get_from_map(&tree, &wup).points + gap;
             let insert = get_from_map(&tree, &wleft).points + gap;
 
-            /* if match_mismatch_delta_points > delete && match_mismatch_delta_points > insert {
-                create_node(w, wdiag, match_mismatch_delta_points, &mut tree);
-                // L'elemento in diagonale ovviamente non è leaf ma per la versione con percorsi compressi ci serve comunque valutarla?
-            } else if delete > insert { // * Preferiamo il movimento orizzontale!
-                create_node(w, wup, delete, &mut tree);
-            } else {
-                create_node(w, wleft, insert, &mut tree);
-            } */
             if insert >= match_mismatch_delta_points && insert >= delete {    // * Preferiamo il movimento orizzontale!
                 create_node(w, wleft, insert, &mut tree);
             } else if match_mismatch_delta_points >= delete {                // * In alternativa, il diagonale
@@ -194,7 +189,6 @@ pub fn build_tree(seq_s: &str, seq: &str, match_score: i32, mismatch: i32, gap: 
         }
 
         let last_idx = j*n1 + n1 - 1;
-
         let last_node = get_from_map(&tree, &last_idx);
         let last_node_points = last_node.points;
         if last_node_points > max_score {
@@ -237,23 +231,10 @@ pub fn build_tree(seq_s: &str, seq: &str, match_score: i32, mismatch: i32, gap: 
         }
     }
 
-    /* if tree.len() < 170 {
-        println!("\nFull schema saved in memory");
-        print_hash_map(&tree);
-        println!("\nPath from best score to root (w={})", max_pos);
-        print_path_to_root_full(max_pos, &tree);
-    } else if tree.len() < 1_000 {
-        println!("\nFull schema saved in memory too big to be printed, sorry");
-        println!("\nPath from best score to root (w={})", max_pos);
-        print_path_to_root_compressed(max_pos, &tree);
-    } else {
-        println!("\nFull schema saved in memory too big to be printed, sorry");
-        println!("\nPath from best score to root (w={})", max_pos);
-    } */
-
     println!("{} -> {} with dependences={:?} and dont_delete={:?}", seq, seq_t, dependences, dont_skip);
     println!("Matrix size {} x {} = {}", n1, m1, n1*m1);
     println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
+    // println!("Max tree size before computing last row was {}", max_nodes);
 
     let mut waypoints:Vec<((usize, usize), (usize, usize))> = vec!();
     let mut fullpath:Vec<(usize, usize)> = vec!();
@@ -274,8 +255,8 @@ pub fn build_tree(seq_s: &str, seq: &str, match_score: i32, mismatch: i32, gap: 
         "fullpath": &fullpath,
         "treemode": &TREE_MODE
     });
-    
-    // println!("\n\n{:?}\n\n", serde_json::to_string(&for_drawer).unwrap());
+
+    // println!("{:?}", &fullpath);
     let written = write_file(&for_drawer);
     if written.is_err() { panic!("\n❌ Error writing file"); }
     else { println!("\n✅ Full tree written in /tmp/alignment_tree.json ready for drawing"); }
