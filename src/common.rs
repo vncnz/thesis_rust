@@ -18,59 +18,24 @@ pub struct TreeNode {
 }
 
 pub fn print_hash_map(map: &HashMap<usize, TreeNode>) {
-    // for (key, value) in &*map {
+    // Stampa in maniera ordinata il contenuto dell'albero
+    // usata solo per test e verifiche
     for key in map.keys().sorted() {
-        // println!("{:3} / {:?}", &key, &value);
         println!("{:3} / {:?}", &key, map[key]);
     }
-    // map.clear();
-}/*
-pub fn print_path_to_root_compressed(starting: usize, map: &HashMap<usize, TreeNode>) {
-    let mut path = format!("{}", map[&starting].pos);
-    let mut cnode = &map[&starting];
-    while cnode.parent != cnode.pos {
-        cnode = get_from_map(map, &cnode.parent); // &map[&cnode.parent];
-        // println!("{:?}", &cnode);
-        let f = format!(" -> {:?}", &cnode.pos);
-        path.push_str(&f);
-    }
-    println!("{}", path);
 }
 
-pub fn print_path_to_root_full(starting: usize, map: &HashMap<usize, TreeNode>) {
-    let mut cnode = &map[&starting];
-    println!("{:?}", cnode);
-    while cnode.parent != cnode.pos {
-        cnode = get_from_map(map, &cnode.parent); // &map[&cnode.parent];
-        println!("{:?}", &cnode);
-    }
-} */
-
 pub fn get_from_map<'a, K: Eq + std::hash::Hash + std::fmt::Debug, V>(map: &'a HashMap<K, V>, key: &K) -> &'a V {
+    // Recupera semplicemente un nodo dall'albero in base alla chiave data - readonly
     map.get(key).expect(&format!("Key {:?} not found in map", key))
 }
 pub fn get_mut_from_map<'a, K: Eq + std::hash::Hash + std::fmt::Debug, V>(map: &'a mut HashMap<K, V>, key: &K) -> &'a mut V {
+    // Recupera semplicemente un nodo dall'albero in base alla chiave data - mutable
     map.get_mut(key).expect(&format!("Key {:?} not found in map", key))
 }
 
-/*
-#[derive(Debug)]
-pub struct Relationship {
-    pub(crate) d: bool,
-    pub(crate) v: bool,
-    pub(crate) h: bool
-}
-pub fn nodes_relationship (current_node: usize, parent: usize, m1: usize) -> Relationship {
-    // println!("Computing relation between {} and {}", current_node, parent);
-    let vmov0 = (current_node % m1 - parent % m1) as i64;
-    let hmov0 = (current_node / m1) as i64 - (parent / m1) as i64;
-    let r = Relationship { d: hmov0 == vmov0, v: vmov0 == 0, h: hmov0 == 0 };
-    // println!("Computing relation between {} and {} {:?}", current_node, parent, r);
-    r
-} */
-
 pub fn create_node(w: usize, parent: usize, points: i32, tree: &mut HashMap<usize, TreeNode>) {
-    // println!("{}, child of {}", w, &parent);
+    // Creiamo ed aggiungiamo all'albero un nodo con id, genitore, e punti
     let p = tree.get_mut(&parent).unwrap();
     p.children.push(w);
     let n = TreeNode {
@@ -84,55 +49,54 @@ pub fn create_node(w: usize, parent: usize, points: i32, tree: &mut HashMap<usiz
 }
 
 pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, n1: &usize, lines_to_keep: &Vec<usize>, dont_skip: &Vec<usize>) {
-
+    // Esegue il prune dell'albero a partire dall'indice ricevuto come parametro
     let mut current_id: usize = w;
     let mut children_num: usize = 100;
     let mut row = &current_id / n1;
 
+    // Il ciclo si interrompe se il nodo è protetto (max_score) o se si trova su una riga da mantenere forzatamente
     while current_id != *protected && !lines_to_keep.contains(&row) {
         let parent_id;
 
-        {
-            let n: &mut TreeNode = get_mut_from_map(tree, &current_id);
+        let n: &mut TreeNode = get_mut_from_map(tree, &current_id);
 
-            // Se il nodo ha figli, non facciamo nulla e interrompiamo il ciclo
-            if n.children.len() > 0 {
-                children_num = n.children.len();
-                break;
-            }
-
-            // Altrimenti, ci salviamo il nodo del parent e continuiamo
-            parent_id = n.parent;
+        // Se il nodo ha figli, non facciamo nulla e interrompiamo il ciclo
+        if n.children.len() > 0 {
+            children_num = n.children.len();
+            break;
         }
 
-        {
-            // Recuperiamo il genitore del nodo corrente
-            let p: &mut TreeNode = get_mut_from_map(tree, &parent_id);
-            
-            // Rimuoviamo il nodo corrente dalla lista dei figli del genitore
-            if let Some(pos) = p.children.iter().position(|x: &usize| *x == current_id) {
-                p.children.swap_remove(pos);
-            }
-
-            // Recuperiamo il numero di figli del padre
-            children_num = p.children.len();
-
-            // Rimuoviamo il nodo corrente dall'albero
-            tree.remove(&current_id);
+        // Altrimenti, ci salviamo il nodo del parent e continuiamo
+        parent_id = n.parent;
+    
+        // Recuperiamo il genitore del nodo corrente
+        let p: &mut TreeNode = get_mut_from_map(tree, &parent_id);
+        
+        // Rimuoviamo il nodo corrente dalla lista dei figli del genitore
+        if let Some(pos) = p.children.iter().position(|x: &usize| *x == current_id) {
+            p.children.swap_remove(pos);
         }
+
+        // Recuperiamo il numero di figli del padre
+        children_num = p.children.len();
+
+        // Rimuoviamo il nodo corrente dall'albero
+        tree.remove(&current_id);
 
         // Se il genitore non ha più figli, proseguiamo potando il genitore
         current_id = parent_id;
         row = current_id / n1;
 
+        // Se il genitore aveva altri figli, il ciclo termina qui
         if children_num > 0 {
             break;
         }
     }
 
+    // Se il ciclo si è fermato su un nodo che non possiamo saltare, la procedura termina
     let n: &mut TreeNode = get_mut_from_map(tree, &current_id);
     if dont_skip.contains(&(&n.parent / n1)) {
-        println!("Don't delete {}, This line needs to be kept: {} {:?}", current_id, &row, &lines_to_keep);
+        // println!("Don't delete {}, This line needs to be kept: {} {:?}", current_id, &row, &lines_to_keep);
         return;
     }
 
@@ -159,7 +123,7 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
 }
 
 pub fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
-
+    // Rimuove un nodo agganciando direttamente il suo genitore al suo unico figlio
     let w0: usize;
     let w2: usize;
 
