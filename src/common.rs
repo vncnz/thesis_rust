@@ -25,7 +25,11 @@ pub fn print_hash_map(map: &HashMap<usize, TreeNode>) {
     }
 }
 
-pub fn get_from_map<'a, K: Eq + std::hash::Hash + std::fmt::Debug, V>(map: &'a HashMap<K, V>, key: &K) -> &'a V {
+/* pub fn get_from_map<'a, K: Eq + std::hash::Hash + std::fmt::Debug, V>(map: &'a HashMap<K, V>, key: &K) -> &'a V {
+    // Recupera semplicemente un nodo dall'albero in base alla chiave data - readonly
+    map.get(key).expect(&format!("Key {:?} not found in map", key))
+} */
+pub fn get_from_map<'a, K: Eq + std::hash::Hash + std::fmt::Debug, TreeNode>(map: &'a HashMap<K, TreeNode>, key: &K) -> &'a TreeNode {
     // Recupera semplicemente un nodo dall'albero in base alla chiave data - readonly
     map.get(key).expect(&format!("Key {:?} not found in map", key))
 }
@@ -147,16 +151,21 @@ pub fn skip_node (w: usize, tree: &mut HashMap<usize, TreeNode>) {
 }
 
 pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq_s: &str, seq_t: &str, n1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<(usize, usize)> {
-
+    // Questa funzione ripercorre l'intero percorso ottimale dalla fine alla radice dell'albero, creando una lista di coordinate riga/colonna dei nodi di passaggio. Nel farlo, costruisce anche le sue stringhe da stampare come righe dell'allineamento ottenuto, inserendo i corretti gap dove necessario. Al termine, restituisce la lista di coordinate.
     let vec_s: Vec<char> = seq_s.chars().collect();
     let vec_t: Vec<char> = seq_t.chars().collect();
-    let end_pos = (vec_s.len() + 1) * (vec_t.len() + 1) - 1;
     let mut a: String = "".to_owned();
     let mut b: String = "".to_owned();
-    let mut cnode = &TreeNode { pos: end_pos, parent: max_points_pos, children: [].to_vec(), depth: 0, points: 0 };
-    if end_pos == max_points_pos {
-        cnode = get_from_map(map, &end_pos);
-    }
+    
+    // end_pos è l'elemento nell'angolo in basso a destra della matrice, l'elemento di partenza
+    let end_pos = (vec_s.len() + 1) * (vec_t.len() + 1) - 1;
+
+    // Nel caso end_pos sia proprio l'elemento con massimo punteggio, usiamo il vero nodo presente nell'albero; in caso contrario ne creiamo uno ad hoc
+    let mut cnode: &TreeNode = if end_pos == max_points_pos {
+        get_from_map(map, &end_pos)
+    } else {
+        &TreeNode { pos: end_pos, parent: max_points_pos, children: [].to_vec(), depth: 0, points: 0 }
+    };
 
     let mut hmov = cnode.pos % n1 != cnode.parent % n1;
     let mut vmov = cnode.pos / n1 != cnode.parent / n1;
@@ -165,6 +174,7 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
 
     let mut coords = vec![];
 
+    // ssafe non ha un ruolo attivo, è un controllo per evitare cicli infiniti in caso di bug nello sviluppo
     let mut ssafe = seq_s.len() * seq_t.len() + 3;
     while ssafe > 0 && p > 0 {
         // println!("\n   ssafe={} p={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1, &cnode);
@@ -219,7 +229,6 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
 }
 
 pub fn recostruct_subproblems(max_points_pos: usize, map: &HashMap<usize, TreeNode>, seq_s: &str, seq_t: &str, n1: usize, dependences: &HashMap<usize, Vec<usize>>) -> Vec<((usize, usize), (usize, usize))> {
-    // ! Da verificare meglio per la versione de-strings!
     let end_pos = (seq_s.len() + 1) * (seq_t.len() + 1) - 1;
 
     let mut cnode = &TreeNode { pos: end_pos, parent: max_points_pos, children: [].to_vec(), depth: 0, points: 0 };
