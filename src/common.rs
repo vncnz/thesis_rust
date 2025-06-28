@@ -177,7 +177,7 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
     // ssafe non ha un ruolo attivo, è un controllo per evitare cicli infiniti in caso di bug nello sviluppo
     let mut ssafe = seq_s.len() * seq_t.len() + 3;
     while ssafe > 0 && p > 0 {
-        // println!("\n   ssafe={} p={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &hmov, &vmov, p%m1, p/m1, &cnode);
+        // println!("\n   ssafe={} p={} n1={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &n1, &hmov, &vmov, p%n1, p/n1, &cnode);
         ssafe -= 1;
 
         // println!("Indeces x={} ({}) y={} ({})", p%m1, seq1v[p%m1 -1], p/m1, seq2v[p/m1 -1]);
@@ -187,9 +187,9 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
         if hmov { a.insert(0, vec_s[p % n1 -1]); }
         else { a.insert(0, '-'); }
 
-        let row_number = p / n1;
+        // let row_number = p / n1;
         
-        if dependences.contains_key(&(row_number)) && get_from_map(&dependences, &row_number).len() > 1 {
+        if get_from_map(map, &cnode.parent).depth == cnode.depth-1 /* dependences.contains_key(&(row_number)) && get_from_map(&dependences, &row_number).len() > 1*/ {
             p = cnode.parent; // In fase di costruzione albero mi garantisco la presenza di un nodo nell'ultima riga dell'alternativa scelta
             // println!("{} for row_number {}, p is {}, cnode is {:?}, dependences is {:?}", "Using parent".yellow(), &row_number, &p, &cnode, &dependences);
         } else {
