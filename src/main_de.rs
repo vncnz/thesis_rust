@@ -135,9 +135,9 @@ pub fn build_tree(seq_s: &str, seq: &str, match_score: i32, mismatch: i32, gap: 
             println!("La riga {} è speciale: {:?}", j, deps);
             match deps.len() {
                 1 => {
-                    println!("Riga con una dipendenza unica: {}", deps[0]);
+                    // println!("Riga con una dipendenza unica: {}", deps[0]);
                     uprow = (deps[0]*n1 .. (deps[0]+1)*n1).collect();
-                    println!("lines_to_keep: {:?}", &lines_to_keep);
+                    // println!("lines_to_keep: {:?}", &lines_to_keep);
                 },
                 2 => {
                     panic!("La riga {} è speciale ma ha due valori associati: {:?}", j, deps);
@@ -149,7 +149,7 @@ pub fn build_tree(seq_s: &str, seq: &str, match_score: i32, mismatch: i32, gap: 
                     for i in 0..n1 {
                         let mut max = 1;
                         for d in 2..deps.len() {
-                            println!("Comparing {} ({}) with {} ({})", deps[d]*n1 + i, get_from_map(&tree, &(deps[d]*n1 + i)).points, deps[max]*n1 + i, get_from_map(&tree, &(deps[max]*n1 + i)).points);
+                            // println!("Comparing {} ({}) with {} ({})", deps[d]*n1 + i, get_from_map(&tree, &(deps[d]*n1 + i)).points, deps[max]*n1 + i, get_from_map(&tree, &(deps[max]*n1 + i)).points);
                             if get_from_map(&tree, &(deps[d]*n1 + i)).points > get_from_map(&tree, &(deps[max]*n1 + i)).points {
                                 max = d;
                             }
@@ -159,7 +159,7 @@ pub fn build_tree(seq_s: &str, seq: &str, match_score: i32, mismatch: i32, gap: 
                     // uprow = (deps[1]*m1 .. (deps[1]+1)*m1).collect();
                 }
             }
-            println!("uprow indeces: {:?} with m1={}", uprow, n1);
+            // println!("uprow indeces: {:?} with m1={}", uprow, n1);
         }
         create_node(j*n1, uprow[0], points, &mut tree);
         for i in 1..n1 {
@@ -216,6 +216,7 @@ pub fn build_tree(seq_s: &str, seq: &str, match_score: i32, mismatch: i32, gap: 
                         let w = d*n1 + i;
                         tree_prune(w, &mut tree, &max_pos, &n1, &lines_to_keep, &dont_skip);
                     }
+                    println!("Pruning row {} end", d);
                 }
             }
         }
