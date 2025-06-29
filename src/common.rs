@@ -54,6 +54,8 @@ pub fn create_node(w: usize, parent: usize, points: i32, tree: &mut HashMap<usiz
 
 pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usize, n1: &usize, lines_to_keep: &Vec<usize>, dont_skip: &Vec<usize>) {
     // Esegue il prune dell'albero a partire dall'indice ricevuto come parametro
+    if !tree.contains_key(&w) { return } // Con le de-strings su righe che subiscono la pulizia a posteriori può succedere che l'ultimo elemento della riga sia già stato pulito in precedenza: è necessario proteggersi da questo caso specifico
+
     let mut current_id: usize = w;
     let mut children_num: usize = 100;
     let mut row = &current_id / n1;

@@ -211,7 +211,8 @@ pub fn build_tree(seq_s: &str, seq: &str, match_score: i32, mismatch: i32, gap: 
                 }
                 // This is a closing-alternative node, we can clean up all the previously blocked rows!
                 for d in deps {
-                    for i in 0..(n1-1) {
+                    println!("Pruning row {} start", d);
+                    for i in 0..n1 {
                         let w = d*n1 + i;
                         tree_prune(w, &mut tree, &max_pos, &n1, &lines_to_keep, &dont_skip);
                     }
