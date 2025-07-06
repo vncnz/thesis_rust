@@ -64,16 +64,16 @@ pub fn tree_prune(w: usize, tree: &mut HashMap<usize, TreeNode>, protected: &usi
     while current_id != *protected && !lines_to_keep.contains(&row) {
         let parent_id;
 
-        let n: &mut TreeNode = get_mut_from_map(tree, &current_id);
+        let current_node: &mut TreeNode = get_mut_from_map(tree, &current_id);
 
         // Se il nodo ha figli, non facciamo nulla e interrompiamo il ciclo
-        if n.children.len() > 0 {
-            children_num = n.children.len();
+        if current_node.children.len() > 0 {
+            children_num = current_node.children.len();
             break;
         }
 
         // Altrimenti, ci salviamo il nodo del parent e continuiamo
-        parent_id = n.parent;
+        parent_id = current_node.parent;
     
         // Recuperiamo il genitore del nodo corrente
         let p: &mut TreeNode = get_mut_from_map(tree, &parent_id);
@@ -182,7 +182,6 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
         // println!("\n   ssafe={} p={} n1={} hmov={} vmov={} x={} y={} cnode={:?}", &ssafe, &p, &n1, &hmov, &vmov, p%n1, p/n1, &cnode);
         ssafe -= 1;
 
-        // println!("Indeces x={} ({}) y={} ({})", p%m1, seq1v[p%m1 -1], p/m1, seq2v[p/m1 -1]);
         if vmov { b.insert(0, vec_t[(p / n1 -1) as usize]); }
         else { b.insert(0, '-'); }
 
