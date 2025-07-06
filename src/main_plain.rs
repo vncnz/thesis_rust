@@ -65,7 +65,6 @@ pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap
             let wdiag: usize = w - n1 - 1;
             let wup: usize = w - n1;
             let wleft: usize = w - 1;
-            // println!("w={} m1={} j={} i={}", w, &m1, &j, &i);
             let match_mismatch_delta_points = get_from_map(&tree, &wdiag).points
                 + if seq_s.as_bytes()[i - 1] == seq_t.as_bytes()[j - 1] { match_score }
                   else { mismatch };
@@ -99,7 +98,7 @@ pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap
         let last_idx = j*n1 + n1 - 1;
         let last_node = get_from_map(&tree, &last_idx);
         let last_node_points = last_node.points;
-        if last_node_points > max_score {
+        if last_node_points > max_score { // Commenta questo per il global
             if max_pos > 0 && max_pos < (j-1)*n1 && last_node.children.len() == 0 {
                 tree_prune(max_pos, &mut tree, &((j+1)*n1 -1), &n1, &Vec::new(), &Vec::new());
             }
@@ -108,8 +107,11 @@ pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap
         }
 
     }
+    // Decommenta questo per il global
+    // max_pos = m1*n1 - 1;
+    // max_score = get_from_map(&tree, &max_pos).points;
 
-    for i in 0..n1 {
+    for i in 0..n1 { // Commenta questo per il global
         let idx = (m1-1)*n1 + i;
         let node = get_from_map(&tree, &idx);
         let node_points = node.points;
