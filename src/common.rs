@@ -190,7 +190,8 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
 
         // let row_number = p / n1;
         
-        if get_from_map(map, &cnode.parent).depth == cnode.depth-1 /* dependences.contains_key(&(row_number)) && get_from_map(&dependences, &row_number).len() > 1*/ {
+        // println!("{}", cnode.depth);
+        if cnode.depth > 0 && get_from_map(map, &cnode.parent).depth == cnode.depth-1 /* dependences.contains_key(&(row_number)) && get_from_map(&dependences, &row_number).len() > 1*/ {
             p = cnode.parent; // In fase di costruzione albero mi garantisco la presenza di un nodo nell'ultima riga dell'alternativa scelta
             // println!("{} for row_number {}, p is {}, cnode is {:?}, dependences is {:?}", "Using parent".yellow(), &row_number, &p, &cnode, &dependences);
         } else {
