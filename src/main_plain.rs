@@ -113,7 +113,7 @@ pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap
         let last_idx = j*n1 + n1 - 1;
         let last_node = get_from_map(&tree, &last_idx);
         let last_node_points = last_node.points;
-        if last_node_points > max_score { // Commenta questo per il global
+        if last_node_points >= max_score { // Commenta questo per il global
             if max_pos > 0 && max_pos < (j-1)*n1 && last_node.children.len() == 0 {
                 tree_prune(max_pos, &mut tree, &((j+1)*n1 -1), &n1, &Vec::new(), &Vec::new());
             }
