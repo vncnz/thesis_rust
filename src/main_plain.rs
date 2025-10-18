@@ -6,6 +6,8 @@ use common::{create_node, get_from_map, recostruct_alignment, recostruct_subprob
 
 pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap: i32) -> (i32, usize) {
 
+    let WRITE_SPECIFIC_STEP: Option<usize> = None; // Some(95);
+
     let n: usize = seq_s.len();
     let m: usize = seq_t.len();
     let n1 = n + 1;
@@ -82,18 +84,31 @@ pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap
            
             tree_prune(wdiag, &mut tree, &max_pos, &n1, &Vec::new(), &Vec::new()); // prune dell'elemento in diagonale
 
-            /* if w == 81 || w == 82 {
+            if Some(w) == WRITE_SPECIFIC_STEP {
+                let mut waypoints:Vec<((usize, usize), (usize, usize))> = vec!();
+                let mut fullpath:Vec<(usize, usize)> = vec!();
+                if TREE_MODE {
+                    waypoints = recostruct_subproblems(max_pos, &tree, seq_s, seq_t, n1, &HashMap::new());
+                } else {
+                    fullpath = recostruct_alignment(max_pos, &tree, seq_s, seq_t, n1, &HashMap::new());
+                }
+
                 let for_drawer = serde_json::json!({
                     "dependences": [],
                     "tree": &tree,
-                    "seq1": &seq1,
-                    "seq2": &seq2,
+                    "seq1": &seq_s,
+                    "seq2": &seq_t,
                     "max_pos": &max_pos,
                     "max_points": &max_score,
-                    "w": &w
+                    "waypoints": &waypoints,
+                    "fullpath": &fullpath,
+                    "treemode": &TREE_MODE
                 });
-                println!("\n(Element {:?} computed)\n{:?}\n\n", w, serde_json::to_string(&for_drawer).unwrap());
-            } */
+                // println!("\n(Element {:?} computed)\n{:?}\n\n", w, serde_json::to_string(&for_drawer).unwrap());
+                let written = write_file(&for_drawer);
+                if written.is_err() { panic!("\n❌ Error writing file"); }
+                else { println!("\n✅ Full tree written in /tmp/alignment_tree.json for step {:?}", WRITE_SPECIFIC_STEP); }
+            }
         }
         let last_idx = j*n1 + n1 - 1;
         let last_node = get_from_map(&tree, &last_idx);
@@ -125,29 +140,32 @@ pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap
     println!("Tree size {} nodes ({}% of matrix size)", tree.len(), (ratio * 100.).round() / 100.);
     // println!("Max tree size before computing last row was {}", max_nodes);
 
-    let mut waypoints:Vec<((usize, usize), (usize, usize))> = vec!();
-    let mut fullpath:Vec<(usize, usize)> = vec!();
-    if TREE_MODE {
-        waypoints = recostruct_subproblems(max_pos, &tree, seq_s, seq_t, n1, &HashMap::new());
-    } else {
-        fullpath = recostruct_alignment(max_pos, &tree, seq_s, seq_t, n1, &HashMap::new());
+    if WRITE_SPECIFIC_STEP == None {
+        let mut waypoints:Vec<((usize, usize), (usize, usize))> = vec!();
+        let mut fullpath:Vec<(usize, usize)> = vec!();
+        if TREE_MODE {
+            waypoints = recostruct_subproblems(max_pos, &tree, seq_s, seq_t, n1, &HashMap::new());
+        } else {
+            fullpath = recostruct_alignment(max_pos, &tree, seq_s, seq_t, n1, &HashMap::new());
+        }
+
+        let for_drawer = serde_json::json!({
+            "dependences": [],
+            "tree": &tree,
+            "seq1": &seq_s,
+            "seq2": &seq_t,
+            "max_pos": &max_pos,
+            "max_points": &max_score,
+            "waypoints": &waypoints,
+            "fullpath": &fullpath,
+            "treemode": &TREE_MODE
+        });
+
+        // Write final version
+        let written = write_file(&for_drawer);
+        if written.is_err() { panic!("\n❌ Error writing file"); }
+        else { println!("\n✅ Full tree written in /tmp/alignment_tree.json ready for drawing"); }
     }
-
-    let for_drawer = serde_json::json!({
-        "dependences": [],
-        "tree": &tree,
-        "seq1": &seq_s,
-        "seq2": &seq_t,
-        "max_pos": &max_pos,
-        "max_points": &max_score,
-        "waypoints": &waypoints,
-        "fullpath": &fullpath,
-        "treemode": &TREE_MODE
-    });
-
-    let written = write_file(&for_drawer);
-    if written.is_err() { panic!("\n❌ Error writing file"); }
-    else { println!("\n✅ Full tree written in /tmp/alignment_tree.json ready for drawing"); }
 
     (max_score, max_pos)
 }
