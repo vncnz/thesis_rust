@@ -224,6 +224,8 @@ pub fn recostruct_alignment(max_points_pos: usize, map: &HashMap<usize, TreeNode
     if a.len() < 50 {
         println!("{}", a);
         println!("{}", b);
+    } else {
+        println!("Alignment length: {}", a.len());
     }
 
     // Restituisco la lista di coordinate dei nodi del percorso
