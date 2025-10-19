@@ -74,7 +74,10 @@ pub fn build_tree(seq_s: &str, seq_t: &str, match_score: i32, mismatch: i32, gap
             let delete = get_from_map(&tree, &wup).points + gap;
             let insert = get_from_map(&tree, &wleft).points + gap;
 
-            if insert >= match_mismatch_delta_points && insert >= delete {    // * Preferiamo il movimento orizzontale!
+            /* if delete >= match_mismatch_delta_points && delete >= insert { // fake for drawing scopes...
+                create_node(w, wup, delete, &mut tree);
+            }
+            else */ if insert >= match_mismatch_delta_points && insert >= delete {    // * Preferiamo il movimento orizzontale!
                 create_node(w, wleft, insert, &mut tree);
             } else if match_mismatch_delta_points >= delete {                // * In alternativa, il diagonale
                 create_node(w, wdiag, match_mismatch_delta_points, &mut tree);
